@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chroniques des Clans — Arbre Généalogique</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+
+    /* --- MODE PHOTO --- */
+    body.photo-mode header,
+    body.photo-mode .controls,
+    body.photo-mode footer,
+    body.photo-mode .boussole-btn,
+    body.photo-mode #status-msg {
+      display: none !important; /* Cache toute l'interface */
+    }
+    body.photo-mode {
+      background: var(--bg); /* Garde le fond propre */
+    }
+    body.photo-mode .tree-outer {
+      border: none; /* Enlève les bordures de la zone de l'arbre */
+      margin: 0;
+      height: 100vh; /* Prend tout l'écran */
+    }
+    
+    /* Bouton pour quitter le mode photo (invisible en temps normal) */
+    #btn-exit-photo {
+      display: none;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--clan-tonnerre);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 9999;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    body.photo-mode #btn-exit-photo {
+      display: block; /* Apparaît seulement pendant le mode photo */
+    }
+
+    :root {
+      --bg:          #080f09;
+      --bg2:         #0f1a10;
+      --bg3:         #162018;
+      --border:      rgba(180,160,100,0.18);
+      --border-med:  rgba(180,160,100,0.35);
+      --gold:        #c9a84c;
+      --gold-dim:    rgba(201,168,76,0.18);
+      --text:        #d8ccb4;
+      --text-dim:    #8a8070;
+      --text-faint:  #4a4438;
+
+      --clan-tonnerre: #c94040;
+      --clan-ombre:    #6b59c4;
+      --clan-vent:     #2d8f5e;
+      --clan-riviere:  #3d88cc;
+      --clan-sans:     #7a7570;
+
+      --card-w: 132px;
+      --card-h: 156px;
+      --col-step: 152px;
+      --row-step: 216px;
+
+      
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    header {
+      text-align: center;
+      padding: 2.5rem 1rem 1.5rem;
+      border-bottom: 0.5px solid var(--border);
+      position: relative;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .header-deco {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+      opacity: 0.7;
+    }
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--gold);
+      line-height: 1.1;
+    }
+    .subtitle {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--text-dim);
+      margin-top: 0.4rem;
+    }
+
+    /* --- BOUSSOLE --- */
+    .boussole-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--bg2);
+      border: 1px solid var(--border-med);
+      color: var(--gold);
+      padding: 10px 18px;
+      border-radius: 30px;
+      cursor: pointer;
+      z-index: 100;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      transition: all 0.2s ease;
+    }
+    .boussole-btn:hover {
+      background: var(--gold-dim);
+      border-color: var(--gold);
+      transform: translateY(-3px);
+    }
+
+    /* ── CONTROLS ───────────────────────────────────────────── */
+    .controls {
+      max-width: 1200px;
+      margin: 1.2rem auto 0;
+      padding: 0 1.2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    .filter-section { flex: 1; min-width: 240px; }
+    .section-label {
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 0.5rem;
+    }
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .filter-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 2px;
+      border: 0.5px solid var(--border);
+      background: transparent;
+      color: var(--text-dim);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 300;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.5px;
+    }
+    .filter-btn:hover { border-color: var(--border-med); color: var(--text); }
+    .filter-btn.active {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: var(--gold-dim);
+    }
+    .clan-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── LEGEND ─────────────────────────────────────────────── */
+    .legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    .leg-item { display: flex; align-items: center; gap: 6px; }
+    .leg-line {
+      width: 24px;
+      border-top: 1.5px solid rgba(180,160,100,0.5);
+      display: inline-block;
+    }
+    .leg-line.dashed { border-top-style: dashed; }
+    .leg-sep { width: 0.5px; height: 16px; background: var(--border); }
+    .leg-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── TREE AREA ───────────────────────────────────────────── */
+    .tree-outer {
+      overflow: hidden;
+      padding: 1.5rem 1.2rem 1rem;
+      cursor: grab;
+      height: 70vh;
+      border: 1px solid var(--border-med);
+      margin: 1rem 1.2rem;
+      border-radius: 5px;
+    }
+    .tree-outer:active { cursor: grabbing; }
+
+    #tree-wrap {
+      position: relative;
+    }
+    #lines-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: visible;
+    }
+
+    /* ── CHARACTER CARDS ────────────────────────────────────── */
+    .char-card {
+      position: absolute;
+      width: var(--card-w);
+      height: var(--card-h);
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: 3px;
+      padding: 8px 6px 7px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      z-index: 2;
+    }
+    .char-card:hover {
+      border-color: var(--border-med);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+    .char-card.selected {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 1px var(--gold-dim), 0 6px 24px rgba(0,0,0,0.5);
+    }
+    .char-card.dimmed {
+      opacity: 0.14;
+      pointer-events: none;
+    }
+
+    .card-badges {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .clan-badge {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      border: 1.5px solid var(--bg2);
+    }
+    .clan-badge.origin { width: 6px; height: 6px; opacity: 0.65; }
+
+    .card-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      margin: 0 auto 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      border: 1.5px solid var(--border);
+      overflow: hidden;
+      background: var(--bg3);
+    }
+    .card-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .card-name {
+      font-family: 'Crimson Pro', serif;
+      font-size: 11.5px;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 2px;
+    }
+    .card-rank {
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 0.3px;
+      margin-bottom: 4px;
+    }
+    .card-status {
+      display: inline-block;
+      font-size: 8px;
+      padding: 1px 6px;
+      border-radius: 1px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .st-vivant  { background: rgba(45,143,94,0.2);  color: #5dbf8a; border: 0.5px solid rgba(45,143,94,0.3); }
+    .st-mort    { background: rgba(80,70,60,0.3);   color: #8a8070; border: 0.5px solid rgba(80,70,60,0.4); }
+    .st-disparu { background: rgba(180,130,30,0.15); color: #c9a84c; border: 0.5px solid rgba(180,130,30,0.3); }
+
+    /* --- EFFETS CLAN DES ÉTOILES / FORÊT SOMBRE --- */
+    .char-card.etoiles {
+      box-shadow: 0 0 15px rgba(180, 220, 255, 0.5);
+      border-color: rgba(180, 220, 255, 0.8);
+    }
+    .char-card.etoiles .card-avatar {
+      border-color: rgba(180, 220, 255, 0.8) !important;
+    }
+    
+    .char-card.sombre {
+      box-shadow: 0 0 15px rgba(200, 30, 30, 0.5);
+      border-color: rgba(200, 30, 30, 0.8);
+    }
+    .char-card.sombre .card-avatar {
+      border-color: rgba(200, 30, 30, 0.8) !important;
+      background: #1a0505;
+    }
+
+    /* --- ETIQUETTE JOUEUR / PNJ --- */
+    .card-player {
+      margin-top: 6px;
+      font-size: 8px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 3px 4px;
+      border-radius: 2px;
+      font-family: 'DM Sans', sans-serif;
+      
+      /* La magie anti-débordement */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 90%; 
+      margin-left: auto;
+      margin-right: auto;
+      display: block; 
+    }
+    .card-player.pnj {
+      color: #7a7570; /* Gris discret pour les PNJ */
+      font-style: italic;
+    }
+    .card-player.joueur {
+      color: var(--gold); /* Doré pour les vrais joueurs */
+      font-weight: 500;
+    }
+
+/* --- BARRE DE LIGNÉE DE SANG --- */
+    .bloodline-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      border-bottom-left-radius: 2px;
+      border-bottom-right-radius: 2px;
+      opacity: 0.85;
+    }
+
+    /* ── DETAIL PANEL ───────────────────────────────────────── */
+    .detail-panel {
+      max-width: 700px;
+      margin: 0 1.2rem 2rem;
+      background: var(--bg2);
+      border: 0.5px solid var(--border-med);
+      border-radius: 3px;
+      padding: 1.2rem;
+      display: none;
+      animation: slideIn 0.2s ease;
+    }
+    @keyframes slideIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+    .detail-panel.visible { display: block; }
+
+    .det-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .det-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+      border: 1.5px solid var(--border);
+      background: var(--bg3);
+      overflow: hidden;
+    }
+    .det-avatar img { width:100%; height:100%; object-fit:cover; }
+    .det-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .det-sub {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 3px;
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+    }
+    .det-close {
+      margin-left: auto;
+      background: none;
+      border: 0.5px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 2px;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .det-close:hover { border-color: var(--border-med); color: var(--text); }
+
+    .det-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .det-field {
+      background: var(--bg3);
+      border: 0.5px solid var(--border);
+      border-radius: 2px;
+      padding: 8px 10px;
+    }
+    .det-field.full { grid-column: 1 / -1; }
+    .det-label {
+      font-size: 8.5px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 4px;
+    }
+    .det-value { font-size: 12px; color: var(--text); }
+
+    .family-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+    .fchip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 2px;
+      background: transparent;
+      color: var(--text-dim);
+      border: 0.5px solid var(--border);
+      cursor: pointer;
+      font-family: 'Crimson Pro', serif;
+      transition: all 0.15s;
+    }
+    .fchip:hover { border-color: var(--gold); color: var(--text); }
+    .adopt-tag { font-size: 9px; color: var(--text-faint); font-style: italic; }
+
+    /* ── LOADING / ERROR ─────────────────────────────────────── */
+    #status-msg {
+      text-align: center;
+      padding: 4rem;
+      color: var(--text-dim);
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+    }
+
+    /* ── FOOTER ─────────────────────────────────────────────── */
+    footer {
+      background: var(--bg2);
+      padding: 3rem 1.2rem 2rem;
+      border-top: 1px solid var(--border-med);
+      margin-top: 4rem;
+    }
+    .footer-credits {
+      max-width: 600px;
+      margin: 0 auto 1.5rem auto;
+      padding: 1rem;
+      border: 0.5px dashed var(--border-med);
+      border-radius: 4px;
+      background: var(--bg);
+    }
+    .footer-credits p {
+      margin-bottom: 0.5rem;
+    }
+    .footer-credits p:last-child {
+      margin-bottom: 0;
+    }
+    .footer-credits a {
+      color: var(--gold); /* Le lien en doré */
+      text-decoration: none;
+      transition: color 0.2s, text-decoration 0.2s;
+      font-weight: 500;
+    }
+    .footer-credits a:hover {
+      color: #fff; /* S'éclaire quand on passe la souris dessus */
+      text-decoration: underline;
+    }
+    .footer-author {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--text-faint);
+      text-transform: uppercase;
+    }
+    .footer-author strong {
+      color: var(--gold);
+      letter-spacing: 3px;
+    }
+
+    .footer-credits-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      text-align: left;
+    }
+    .footer-column h4 {
+      font-family: 'Cinzel', serif;
+      color: var(--gold);
+      font-size: 13px;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+    .footer-column p, .footer-column li {
+      font-size: 11.5px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+    .credits-list { list-style: none; margin: 0.5rem 0; }
+    .credits-list li { margin-bottom: 4px; }
+    .small-note { margin-top: 1rem; font-style: italic; opacity: 0.8; }
+    .footer-author-bar {
+      margin-top: 3rem;
+      text-align: center;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--text-faint);
+      text-transform: uppercase;
+    }
+
+    /* ── SCROLLBAR ───────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-med); border-radius: 2px; }
+
+    /* --- CHANGELOG --- */
+    .changelog-btn {
+      margin-top: 15px;
+      background: transparent;
+      border: 0.5px solid var(--border-med);
+      color: var(--text-dim);
+      padding: 6px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: 0.2s;
+    }
+    .changelog-btn:hover { color: var(--text); border-color: var(--gold); }
+    
+    .modal-hidden { display: none; }
+    .modal-visible {
+      display: flex; position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      z-index: 999; justify-content: center; align-items: center;
+      backdrop-filter: blur(3px);
+    }
+    .modal-content {
+      background: var(--bg2); border: 1px solid var(--gold); padding: 2rem;
+      border-radius: 5px; width: 90%; max-width: 500px;
+    }
+    .log-entry { margin-top: 1rem; border-left: 2px solid var(--border-med); padding-left: 15px; }
+    .log-date { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+    .log-entry ul { list-style: none; font-size: 13px; color: var(--text); }
+    .log-entry li { margin-bottom: 8px; }
+
+/* ── MINI-MAP GLOBALE ────────────────────────────────────── */
+    #minimap-container {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      width: 160px;
+      height: 120px;
+      background: rgba(15, 26, 16, 0.85); /* Fond vitré */
+      border: 1px solid var(--border-med);
+      border-radius: 5px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      z-index: 99;
+      backdrop-filter: blur(4px);
+      overflow: hidden;
+      cursor: crosshair;
+      transition: border-color 0.2s;
+    }
+    #minimap-container:hover { border-color: var(--gold); }
+    #minimap-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    #minimap-view {
+      fill: rgba(201, 168, 76, 0.15); 
+      stroke: var(--gold);
+      stroke-width: 2px;
+      vector-effect: non-scaling-stroke;
+      pointer-events: none;
+      transition: all 0.1s ease-out; /* Mouvement fluide */
+    }
+
+/* ── SAISONS DYNAMIQUES & MÉTÉO ───────────────────────────── */
+    html[data-theme="leaf-fall"] {
+      --bg: #140a05; --bg2: #1c0e08; --bg3: #2a150b;
+      --border: rgba(220, 150, 100, 0.2); --border-med: rgba(220, 150, 100, 0.4);
+      --gold: #d98a55; --gold-dim: rgba(217, 138, 85, 0.18);
+    }
+    
+    html[data-theme="leaf-bare"] {
+      --bg: #050a14; --bg2: #0a1220; --bg3: #101a2e;
+      --border: rgba(150, 180, 220, 0.2); --border-med: rgba(150, 180, 220, 0.4);
+      --gold: #a8c8e6; --gold-dim: rgba(168, 200, 230, 0.18);
+    }
+    
+    html[data-theme="newleaf"] {
+      --bg: #05140a; --bg2: #0a1c10; --bg3: #0f2e18;
+      --border: rgba(150, 220, 160, 0.2); --border-med: rgba(150, 220, 160, 0.4);
+      --gold: #85d977; --gold-dim: rgba(133, 217, 119, 0.18);
+    }
+
+    .weather-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0; opacity: 0; transition: opacity 1.5s ease;
+      background-image: 
+        radial-gradient(3px 3px at 20px 30px, rgba(255,255,255,0.7), rgba(0,0,0,0)), 
+        radial-gradient(4px 4px at 40px 70px, rgba(255,255,255,0.8), rgba(0,0,0,0)), 
+        radial-gradient(3px 3px at 50px 160px, rgba(255,255,255,0.6), rgba(0,0,0,0)), 
+        radial-gradient(5px 5px at 90px 40px, rgba(255,255,255,0.9), rgba(0,0,0,0));
+      background-size: 200px 200px;
+    }
+    
+    html[data-theme="leaf-bare"] .weather-overlay {
+      opacity: 1;
+      animation: snowFall 5s linear infinite;
+    }
+    
+    @keyframes snowFall {
+      0% { background-position: 0px 0px, 0px 0px, 0px 0px, 0px 0px; }
+      100% { background-position: 50px 200px, 100px 200px, -50px 200px, 50px 200px; }
+    }
+
+  </style>
+</head>
+<body>
+  <button id="btn-exit-photo">✕ Quitter le Mode Photo</button>
+  <div class="weather-overlay"></div>
+
+<header>
+  <p class="header-deco">⸻ Serveur Role-Play ⸻</p>
+  <h1 id="site-title">Chroniques des Clans</h1>
+  <p class="subtitle" id="site-subtitle">Arbre généalogique</p>
+
+  <button id="btn-changelog" class="changelog-btn">📜 Voir les dernières mises à jour</button>
+  <button id="btn-photo" class="changelog-btn">📸 Mode Photo</button>
+
+  <a href="https://araxiaa.github.io/chronique-des-clans/" target="_blank" class="changelog-btn" style="text-decoration: none; display: inline-block;">⏳ Frise Chronologique</a>
+
+  <button id="btn-compat" class="filter-btn" style="border-color: var(--gold); color: var(--gold); font-weight: 500;">🧬 Bureau des Guérisseurs (Testeur)</button>
+  <button id="btn-hof" class="filter-btn" style="border-color: #ffd700; color: #ffd700; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;">🏆 Hall of Fame</button>
+</header>
+
+<div id="changelog-modal" class="modal-hidden">
+  <div class="modal-content">
+    <button id="close-changelog" class="det-close">✕ Fermer</button>
+    <h2 style="color: var(--gold); font-family: 'Cinzel', serif; margin-bottom: 1rem;">L'Écho des Clans</h2>
+    
+    <div class="log-entry">
+      <div class="log-date">Saison de Rien </div>
+      <ul>
+        <li>✨ <strong>Ajout massif :</strong> L'arbre généalogique compte désormais 79 âmes !</li>
+      </ul>
+    </div>
+    
+  </div>
+</div>
+
+<div class="controls">
+  <div class="filter-section">
+    <p class="section-label">Rechercher un chat</p>
+    <input type="text" id="search-bar" placeholder="Taper un nom..." style="background: var(--bg3); border: 0.5px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 12px; width: 100%; max-width: 200px;">
+  </div>
+  <div class="filter-section">
+    <p class="section-label">Filtrer par clan</p>
+    <div class="filters" id="filters"></div>
+  </div>
+    <p class="section-label">Légende</p>
+    <div class="legend">
+      <div class="leg-item"><span class="leg-line"></span>Biologique</div>
+      <div class="leg-item"><span class="leg-line dashed"></span>Adoptif</div>
+      <div class="leg-sep"></div>
+      <div class="leg-item"><span class="leg-dot" style="background:#5dbf8a"></span>Vivant</div>
+      <div class="leg-item"><span class="leg-dot" style="background:#8a8070"></span>Mort</div>
+      <div class="leg-item"><span class="leg-dot" style="background:#c9a84c"></span>Disparu</div>
+    </div>
+  </div>
+
+  <div class="filter-section">
+    <p class="section-label">Météo & Saison</p>
+    <select id="season-selector" style="background: var(--bg3); color: var(--text); border: 0.5px solid var(--border); padding: 5px 12px; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; cursor: pointer; width: 100%; max-width: 200px;">
+      <option value="default">🌿 Saison des Feuilles Vertes (Été)</option>
+      <option value="leaf-fall">🍂 Saison des Feuilles Mortes (Automne)</option>
+      <option value="leaf-bare">❄️ Saison des Neiges (Hiver)</option>
+      <option value="newleaf">🌱 Saison de la Nouvelle Feuille (Printemps)</option>
+    </select>
+  </div>
+</div>
+
+<div id="compat-modal" class="modal-hidden">
+  <div class="modal-content" style="max-width: 450px; text-align: center;">
+    <button id="close-compat" class="det-close">✕ Fermer</button>
+    <h2 style="color: var(--gold); font-family: 'Cinzel', serif; margin-bottom: 0.5rem;">Bureau des Guérisseurs</h2>
+    <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 1.5rem; font-family: 'Crimson Pro', serif; font-style: italic;">
+      Vérifiez la compatibilité génétique entre deux chats selon le règlement (Ancêtres communs interdits sur 4 générations).
+    </p>
+    
+    <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 1rem;">
+      <select id="compat-cat1" style="background: var(--bg3); color: var(--text); border: 1px solid var(--border); padding: 6px; border-radius: 3px; font-family: 'DM Sans'; width: 45%;"></select>
+      <span style="color: var(--text-dim);">❤️</span>
+      <select id="compat-cat2" style="background: var(--bg3); color: var(--text); border: 1px solid var(--border); padding: 6px; border-radius: 3px; font-family: 'DM Sans'; width: 45%;"></select>
+    </div>
+    
+    <button id="run-compat" class="filter-btn active" style="margin: 0 auto; padding: 8px 16px;">Lancer l'auscultation</button>
+    
+    <div id="compat-result" style="margin-top: 1rem; padding: 12px; border-radius: 3px; font-size: 12px; display: none; line-height: 1.4;"></div>
+  </div>
+</div>
+
+<div id="hof-modal" class="modal-hidden">
+  <div class="modal-content" style="max-width: 600px; text-align: center; background: linear-gradient(135deg, var(--bg2) 0%, #1a150b 100%); border: 1.5px solid #ffd700; box-shadow: 0 0 30px rgba(255, 215, 0, 0.15);">
+    <button id="close-hof" class="det-close" style="color: #ffd700; border-color: #ffd700;">✕ Fermer</button>
+    <h2 style="color: #ffd700; font-family: 'Cinzel', serif; font-size: 1.8rem; margin-bottom: 0.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Le Panthéon des Clans</h2>
+    <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 2rem; font-family: 'Crimson Pro', serif; font-style: italic;">
+      Les légendes de la forêt, gravées pour l'éternité dans la pierre.
+    </p>
+    
+    <div id="hof-results" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left;">
+      </div>
+  </div>
+</div>
+
+<div id="status-msg">Chargement des chroniques…</div>
+<div id="minimap-container">
+  <svg id="minimap-svg"></svg>
+</div>
+<div class="tree-outer" id="tree-outer" style="display:none">
+  <div id="tree-wrap">
+    <svg id="lines-svg"></svg>
+  </div>
+</div>
+
+<div class="detail-panel" id="detail-panel"></div>
+
+<button id="reset-zoom" class="boussole-btn">🧭 Recentrer l'Arbre</button>
+
+<footer id="footer-note">
+  <div class="footer-credits-container">
+    
+    <div class="footer-column">
+      <h4>🎨 Galerie Artistique</h4>
+      <p>Illustrations des OCs par nos talentueux artistes :</p>
+      <ul class="credits-list">
+        <li><strong>@Artiste1</strong> (Le plus grand nombre d'œuvres)</li>
+        <li><strong>@Artiste2</strong>, <strong>@Artiste3</strong></li>
+      </ul>
+      <p class="small-note">Avatars PNJ : <a href="https://cgen-tools.github.io/pixel-cat-maker/" target="_blank">Pixel Cat Maker</a></p>
+    </div>
+
+    <div class="footer-column">
+      <h4>📂 Scribes des Clans</h4>
+      <p>Gestion et mise à jour des registres (Google Sheet) :</p>
+      <ul class="credits-list">
+        <li><strong>@Staff_Scribe_1</strong></li>
+        <li><strong>@Staff_Scribe_2</strong></li>
+      </ul>
+    </div>
+
+    <div class="footer-column">
+      <h4>✨ Création & Magie</h4>
+      <p>Site et Arbre Généalogique interactif :</p>
+      <p>Développé par <strong>@.araxia.</strong></p>
+    </div>
+
+  </div>
+  
+  <div class="footer-author-bar">
+    ⸺ Puisse le Clan des Étoiles éclairer votre chemin ⸺
+  </div>
+</footer>
+
+<!-- La magie de Panzoom (doit être ICI, à l'extérieur des autres scripts) -->
+<script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   CONFIG
+───────────────────────────────────────────────────────────── */
+const CLANS = {
+  tonnerre:    { label: 'Clan du Tonnerre',        color: '#c94040' },
+  ombre:       { label: "Clan de l'Ombre",          color: '#6b59c4' },
+  vent:        { label: 'Clan du Vent',             color: '#2d8f5e' },
+  riviere_anc: { label: 'Anc. Rivière',             color: '#3d88cc' },
+  solitaire:   { label: 'Solitaire',                color: '#8b7355' }, // Couleur terre
+  domestique:  { label: 'Domestique',               color: '#e6a8d7' }, // Rose collier
+};
+
+const RANKS = {
+  chef:         'Chef',
+  lieutenant:   'Lieutenant',
+  medecin:      'Médecin du clan',
+  app_medecin:  'Apprenti médecin',
+  guerrier:     'Guerrier',
+  apprenti:     'Apprenti',
+  ancien:       'Ancien',
+  chaton:       'Chaton',
+  solitaire:    'Solitaire',
+};
+
+const STATUTS = {
+  vivant:  { label: 'Vivant',   cls: 'st-vivant' },
+  mort:    { label: 'Mort',     cls: 'st-mort' },
+  disparu: { label: 'Disparu',  cls: 'st-disparu' },
+};
+
+/* ─────────────────────────────────────────────────────────────
+   CARD DIMENSIONS (must match CSS variables)
+───────────────────────────────────────────────────────────── */
+const CW = 118;   // card width
+const CH = 128;   // card height
+const CS = 138;   // column step
+const RS = 196;   // row step
+
+/* ─────────────────────────────────────────────────────────────
+   STATE
+───────────────────────────────────────────────────────────── */
+let allChars = [];
+let charMap  = {};
+let activeClan = 'all';
+let selectedId = null;
+let searchQuery = '';
+
+/* ─────────────────────────────────────────────────────────────
+   GÉNÉTIQUE — Calcul automatique des pourcentages de sang
+───────────────────────────────────────────────────────────── */
+const bloodlinesCache = {};
+
+function getBloodline(cat) {
+  if (!cat) return {};
+  // Si on l'a déjà calculé, on ressort le résultat en mémoire
+  if (bloodlinesCache[cat.id]) return bloodlinesCache[cat.id];
+
+  let mix = {};
+  
+  // S'il n'a pas de parents biologiques dans l'arbre = Sang pur (Ancêtre)
+  if (!cat.bio_parents || cat.bio_parents.length === 0) {
+    const clanBase = cat.clan_origin ? cat.clan_origin : cat.clan;
+    mix[clanBase] = 100;
+  } else {
+    // S'il a des parents, on mélange !
+    const p1 = charMap[cat.bio_parents[0]];
+    const p2 = cat.bio_parents.length > 1 ? charMap[cat.bio_parents[1]] : null;
+
+    // S'il manque un parent dans le fichier, on suppose que l'autre moitié est du même clan que le chat
+    const defaultClan = cat.clan_origin ? cat.clan_origin : cat.clan;
+    const blood1 = p1 ? getBloodline(p1) : { [defaultClan]: 100 };
+    const blood2 = p2 ? getBloodline(p2) : { [defaultClan]: 100 };
+
+    // On divise par 2 l'héritage de chaque parent
+    for (const [cl, val] of Object.entries(blood1)) {
+      mix[cl] = (mix[cl] || 0) + val / 2;
+    }
+    for (const [cl, val] of Object.entries(blood2)) {
+      mix[cl] = (mix[cl] || 0) + val / 2;
+    }
+  }
+  
+  bloodlinesCache[cat.id] = mix;
+  return mix;
+}
+
+// Transforme les pourcentages en un joli dégradé de couleurs CSS
+function getBloodlineGradient(bloodMix) {
+  let gradient = 'linear-gradient(to right, ';
+  let currentPercent = 0;
+  let stops = [];
+  
+  for (const [cl, val] of Object.entries(bloodMix)) {
+    const color = CLANS[cl] ? CLANS[cl].color : '#888';
+    stops.push(`${color} ${currentPercent}% ${currentPercent + val}%`);
+    currentPercent += val;
+  }
+  
+  return gradient + stops.join(', ') + ')';
+}
+
+/* ─────────────────────────────────────────────────────────────
+   HELPERS — card coordinate calculations
+───────────────────────────────────────────────────────────── */
+const cardLeft  = c => c.col * CS;
+const cardTop   = c => c.gen * RS;
+const cardCx    = c => c.col * CS + CW / 2;
+const cardCy    = c => c.gen * RS + CH / 2;
+
+/* ─────────────────────────────────────────────────────────────
+   MATE PAIRS — Gère les relations actuelles et les ex !
+───────────────────────────────────────────────────────────── */
+function getMatePairs(chars) {
+  const seen = new Set();
+  const pairs = [];
+  chars.forEach(c => {
+    // 1. Les partenaires actuels
+    if (c.bio_mates && c.bio_mates.length) {
+      c.bio_mates.forEach(mateId => {
+        const key = [c.id, mateId].sort().join('_');
+        if (!seen.has(key)) { seen.add(key); pairs.push({ a: c.id, b: mateId, type: 'current' }); }
+      });
+    }
+    // 2. Les Ex-partenaires
+    if (c.ex_mates && c.ex_mates.length) {
+      c.ex_mates.forEach(exId => {
+        const key = [c.id, exId].sort().join('_') + '_EX';
+        if (!seen.has(key)) { seen.add(key); pairs.push({ a: c.id, b: exId, type: 'ex' }); }
+      });
+    }
+  });
+  return pairs;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   FAMILY UNITS — derive from bio_parents / adopt_parents
+   A "family unit" = one set of parent(s) → their children
+───────────────────────────────────────────────────────────── */
+function getFamilyUnits(chars) {
+  // Map from sorted parent-key → { parents:[], children:[], adoptive:bool }
+  const bioUnits   = {};
+  const adoptUnits = {};
+
+  chars.forEach(c => {
+    if (c.bio_parents && c.bio_parents.length) {
+      const key = [...c.bio_parents].sort().join('_');
+      if (!bioUnits[key]) bioUnits[key] = { parents: c.bio_parents, children: [], adoptive: false };
+      bioUnits[key].children.push(c.id);
+    }
+    if (c.adopt_parents && c.adopt_parents.length) {
+      const key = [...c.adopt_parents].sort().join('_') + '_ADOPT';
+      if (!adoptUnits[key]) adoptUnits[key] = { parents: c.adopt_parents, children: [], adoptive: true };
+      adoptUnits[key].children.push(c.id);
+    }
+  });
+
+  return [...Object.values(bioUnits), ...Object.values(adoptUnits)];
+}
+
+/* ─────────────────────────────────────────────────────────────
+   RENDER — SVG lines
+───────────────────────────────────────────────────────────── */
+function renderLines(chars) {
+  const svg = document.getElementById('lines-svg');
+  const sc  = 'rgba(180,160,100,0.45)';  // line stroke color (gold-ish)
+  let s = '';
+
+  const ln = (x1, y1, x2, y2, dash = '') =>
+    `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"
+      style="stroke:${sc};stroke-width:1.5;fill:none" ${dash}/>`;
+
+  // Mate connector lines (horizontal)
+  getMatePairs(chars).forEach(({ a, b, type }) => {
+    const ca = charMap[a], cb = charMap[b];
+    if (!ca || !cb) return;
+    const leftC  = cardCx(ca) < cardCx(cb) ? ca : cb;
+    const rightC = cardCx(ca) < cardCx(cb) ? cb : ca;
+    const y  = cardCy(leftC);
+    const x1 = leftC.col  * CS + CW;
+    const x2 = rightC.col * CS;
+    if (x1 >= x2) return;  // Cartes qui se touchent, on saute
+    
+    const mx = ((x1 + x2) / 2).toFixed(1);
+
+    if (type === 'current') {
+      // Ligne solide avec un cœur
+      s += ln(x1, y, x2, y);
+      s += `<text x="${mx}" y="${(y + 4).toFixed(1)}" text-anchor="middle"
+        style="font-size:9px;fill:${sc};font-family:sans-serif">♥</text>`;
+    } else {
+      // Ligne pointillée avec un cœur brisé pour les EX
+      s += ln(x1, y, x2, y, 'stroke-dasharray="4 4" opacity="0.6"');
+      s += `<text x="${mx}" y="${(y + 4).toFixed(1)}" text-anchor="middle"
+        style="font-size:9px;fill:${sc};font-family:sans-serif;opacity:0.6">💔</text>`;
+    }
+  });
+
+  // Family drop lines
+  getFamilyUnits(chars).forEach(unit => {
+    const pcs = unit.parents.map(id => charMap[id]).filter(Boolean);
+    const ccs = unit.children.map(id => charMap[id]).filter(Boolean);
+    if (!pcs.length || !ccs.length) return;
+
+    const dash = unit.adoptive ? 'stroke-dasharray="8 5"' : '';
+    const coupleX  = pcs.reduce((sum, c) => sum + cardCx(c), 0) / pcs.length;
+    const startY   = pcs.length > 1 ? cardCy(pcs[0]) : cardTop(pcs[0]) + CH;
+    const childRow = Math.min(...ccs.map(c => c.gen));
+    const barY     = childRow * RS - 32;
+    const minCX    = Math.min(...ccs.map(c => cardCx(c)));
+    const maxCX    = Math.max(...ccs.map(c => cardCx(c)));
+    const bMin     = Math.min(coupleX, minCX);
+    const bMax     = Math.max(coupleX, maxCX);
+
+    // Vertical drop from couple midpoint
+    s += ln(coupleX, startY, coupleX, barY, dash);
+    // Horizontal bar spanning children (if needed)
+    if (bMin < bMax) s += ln(bMin, barY, bMax, barY, dash);
+    // Stems down to each child's top
+    ccs.forEach(c => s += ln(cardCx(c), barY, cardCx(c), cardTop(c), dash));
+  });
+
+  svg.innerHTML = s;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   RENDER — Character cards
+───────────────────────────────────────────────────────────── */
+function renderCards(chars) {
+  const wrap = document.getElementById('tree-wrap');
+  wrap.querySelectorAll('.char-card').forEach(el => el.remove());
+
+  const maxCol = Math.max(...chars.map(c => c.col));
+  const maxGen = Math.max(...chars.map(c => c.gen));
+  const W = Math.ceil(maxCol * CS + CW + 20);
+  const H = Math.ceil(maxGen * RS + CH + 50);
+
+  wrap.style.width  = W + 'px';
+  wrap.style.height = H + 'px';
+  const svg = document.getElementById('lines-svg');
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', H);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  chars.forEach(c => {
+    const clan   = CLANS[c.clan]   || { label: c.clan,        color: '#888' };
+    const origin = c.clan_origin   ? CLANS[c.clan_origin] : null;
+    const stat   = STATUTS[c.status] || { label: c.status, cls: '' };
+    
+    // --- NOUVEAU : LOGIQUE DU FOCUS FAMILIAL ---
+    let matchClan = activeClan === 'all' || c.clan === activeClan || c.clan_origin === activeClan;
+    let matchSearch = c.name.toLowerCase().includes(searchQuery);
+    let isDim = !matchClan || !matchSearch;
+
+    if (selectedId) {
+      const sel = charMap[selectedId];
+      // On regroupe toutes les relations du chat cliqué ET du chat en cours pour vérifier s'ils sont liés
+      const cRels = [...(c.bio_parents||[]), ...(c.adopt_parents||[]), ...(c.bio_children||[]), ...(c.adopt_children||[]), ...(c.bio_mates||[]), ...(c.ex_mates||[])];
+      const selRels = [...(sel.bio_parents||[]), ...(sel.adopt_parents||[]), ...(sel.bio_children||[]), ...(sel.adopt_children||[]), ...(sel.bio_mates||[]), ...(sel.ex_mates||[])];
+      
+      const isFamily = c.id === sel.id || selRels.includes(c.id) || cRels.includes(sel.id);
+      
+      if (!isFamily) {
+        isDim = true; // Si ce n'est pas la famille proche, on plonge dans le noir !
+      }
+    }
+    // --------------------------------------------
+
+    const isSel  = c.id === selectedId;
+    const rankLabel = RANKS[c.rank] || c.rank;
+
+    const avatarHTML = c.photo
+      ? `<img src="${c.photo}" alt="${c.name}" />`
+      : (c.emoji || '🐱');
+
+    const div = document.createElement('div');
+    
+    // On calcule les classes (grisé, sélectionné, et l'au-delà !)
+    let classes = `char-card${isDim ? ' dimmed' : ''}${isSel ? ' selected' : ''}`;
+    if (c.status === 'mort' || c.status === 'disparu') {
+      if (c.afterlife === 'sombre') classes += ' sombre';
+      else if (c.afterlife === 'etoiles') classes += ' etoiles';
+      else classes += ' etoiles'; 
+    }
+    
+    div.className = classes;
+    div.style.left = cardLeft(c) + 'px';
+    div.style.top  = cardTop(c)  + 'px';
+    div.dataset.id = c.id;
+    div.addEventListener('click', () => selectChar(c.id));
+
+    // Gestion de l'étiquette Joueur / PNJ
+    let playerBadge = '';
+    if (c.player) {
+      if (c.player.toUpperCase() === 'PNJ') {
+        playerBadge = `<div class="card-player pnj">PNJ</div>`;
+      } else {
+        playerBadge = `<div class="card-player joueur">${c.player}</div>`;
+      }
+    }
+
+// --- NOUVEAU : BADGE GÉNÉTIQUE ---
+    let designBadge = '';
+    if (c.design_type === 'realiste') {
+      designBadge = `<span title="Design Réaliste (Génétique stricte)" style="margin-left: 4px; font-size: 10px;">🌿</span>`;
+    } else if (c.design_type === 'semi_realiste') {
+      designBadge = `<span title="Design Semi-Réaliste" style="margin-left: 4px; font-size: 10px;">✨</span>`;
+    }
+
+    div.innerHTML = `
+      <div class="card-badges">
+        <div class="clan-badge" style="background:${clan.color}" title="${clan.label}"></div>
+        ${origin ? `<div class="clan-badge origin" style="background:${origin.color}" title="${origin.label} (origine)"></div>` : ''}
+      </div>
+      <div class="card-avatar" style="border-color:${clan.color}50">${avatarHTML}</div>
+      <div class="card-name">${c.name}${designBadge}</div>
+      <div class="card-rank">${rankLabel}</div>
+      <span class="card-status ${stat.cls}">${stat.label}</span>
+      ${playerBadge}
+      <div class="bloodline-bar" style="background: ${getBloodlineGradient(getBloodline(c))};" title="Héritage sanguin"></div>
+    `;
+    wrap.appendChild(div);
+    renderMinimap(W, H); // On met à jour la mini-map à la taille de l'arbre
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   RENDER — Filter bar
+───────────────────────────────────────────────────────────── */
+function renderFilters() {
+  const container = document.getElementById('filters');
+  const entries = [
+    ['all', 'Tous les clans', null],
+    ...Object.entries(CLANS).map(([k, v]) => [k, v.label, v.color])
+  ];
+  container.innerHTML = '';
+  entries.forEach(([key, label, color]) => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (key === activeClan ? ' active' : '');
+    btn.dataset.clan = key;
+    if (color) {
+      btn.innerHTML = `<span class="clan-dot" style="background:${color};opacity:${key === 'riviere_anc' ? 0.6 : 1}"></span>${label}`;
+    } else {
+      btn.textContent = label;
+    }
+    btn.addEventListener('click', () => {
+      activeClan = key;
+      renderFilters();
+      renderAll();
+    });
+    container.appendChild(btn);
+  });
+  
+  // Écouteur pour la barre de recherche
+  document.getElementById('search-bar').addEventListener('input', (e) => {
+    searchQuery = e.target.value.toLowerCase();
+    renderAll();
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   GÉNÉALOGIE AVANCÉE — Recherche d'ancêtres
+───────────────────────────────────────────────────────────── */
+// Cette fonction remonte l'arbre sur X générations (maxDepth)
+function getAncestors(charId, maxDepth, currentDepth = 1) {
+  if (currentDepth > maxDepth) return [];
+  const cat = charMap[charId];
+  if (!cat || !cat.bio_parents || cat.bio_parents.length === 0) return [];
+  
+  let anc = [...cat.bio_parents];
+  cat.bio_parents.forEach(pId => {
+    anc.push(...getAncestors(pId, maxDepth, currentDepth + 1));
+  });
+  // Retire les doublons
+  return [...new Set(anc)]; 
+}
+
+/* ─────────────────────────────────────────────────────────────
+   RENDER — Detail panel
+───────────────────────────────────────────────────────────── */
+function renderDetail() {
+  const panel = document.getElementById('detail-panel');
+  if (!selectedId) { panel.className = 'detail-panel'; panel.innerHTML = ''; return; }
+
+  const c      = charMap[selectedId];
+  const clan   = CLANS[c.clan]        || { label: c.clan,        color: '#888' };
+  const origin = c.clan_origin        ? CLANS[c.clan_origin] : null;
+  const stat   = STATUTS[c.status]    || { label: c.status, cls: '' };
+  const rank   = RANKS[c.rank]        || c.rank;
+
+  const chips = (ids, isAdopt = false) =>
+    (ids || []).map(id => {
+      const ch = charMap[id];
+      return ch
+        ? `<span class="fchip" onclick="selectChar('${id}')">
+             ${ch.name}${isAdopt ? '<span class="adopt-tag">adopt.</span>' : ''}
+           </span>`
+        : '';
+    }).join('');
+
+  const avatarContent = c.photo
+    ? `<img src="${c.photo}" alt="${c.name}" />`
+    : (c.emoji || '🐱');
+
+// === ALERTE CONSANGUINITÉ (POUR L'ADMIN) ===
+  let alertBox = '';
+  if (c.bio_mates && c.bio_mates.length > 0) {
+    c.bio_mates.forEach(mateId => {
+      // On remonte 4 générations pour le chat cliqué et son partenaire
+      const myAncestors = getAncestors(c.id, 4); 
+      const mateAncestors = getAncestors(mateId, 4);
+      // On cherche les ancêtres en commun
+      const common = myAncestors.filter(a => mateAncestors.includes(a));
+
+      if (common.length > 0) {
+        const mateName = charMap[mateId] ? charMap[mateId].name : mateId;
+        const commonNames = common.map(id => charMap[id] ? charMap[id].name : 'Inconnu').join(', ');
+        alertBox += `
+          <div style="grid-column: 1 / -1; background: rgba(201, 64, 64, 0.15); border: 1px dashed #c94040; padding: 10px; border-radius: 3px; margin-bottom: 8px;">
+            <span style="color: #c94040; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">⚠️ Alerte Consanguinité</span>
+            <div style="color: var(--text-dim); font-size: 11.5px; margin-top: 4px; line-height: 1.4;">
+              Relation avec <strong>${mateName}</strong> : Vous partagez des ancêtres à moins de 4 générations (${commonNames}).
+            </div>
+          </div>
+        `;
+      }
+    });
+  }
+
+  // === RECHERCHE DES FRÈRES ET SŒURS ===
+  const siblings = allChars.filter(other => 
+    other.id !== c.id && 
+    other.bio_parents && other.bio_parents.length > 0 &&
+    c.bio_parents && c.bio_parents.length > 0 &&
+    other.bio_parents.some(p => c.bio_parents.includes(p))
+  ).map(other => other.id);
+
+  // === RECHERCHE DES GRANDS-PARENTS ===
+  const grandparents = [];
+  if (c.bio_parents) {
+    c.bio_parents.forEach(pId => {
+      const p = charMap[pId];
+      if (p && p.bio_parents) grandparents.push(...p.bio_parents);
+    });
+  }
+  const uniqueGrandparents = [...new Set(grandparents)];
+
+  let rows = `
+    <div class="det-field">
+      <div class="det-label">Statut</div>
+      <div class="det-value"><span class="card-status ${stat.cls}">${stat.label}</span></div>
+    </div>
+    <div class="det-field">
+      <div class="det-label">Clan actuel</div>
+      <div class="det-value" style="color:${clan.color};font-weight:500">${clan.label}</div>
+    </div>
+  `;
+
+  // --- INFO JOUEUR DANS LES DÉTAILS ---
+  if (c.player) {
+    const isPNJ = c.player.toUpperCase() === 'PNJ';
+    rows += `
+      <div class="det-field full">
+        <div class="det-label">${isPNJ ? 'Type de personnage' : 'Joué par'}</div>
+        <div class="det-value" style="${!isPNJ ? 'color: var(--gold); font-weight: 500;' : 'color: var(--text-dim); font-style: italic;'}">
+          ${isPNJ ? 'Personnage Non Joueur (PNJ)' : c.player}
+        </div>
+      </div>
+    `;
+  }
+  
+  if (origin) {
+    rows += `
+      <div class="det-field full">
+        <div class="det-label">Clan d'origine</div>
+        <div class="det-value" style="color:${origin.color}">
+          ${origin.label}
+          <span style="color:var(--text-faint);font-size:10px"> → a rejoint le ${clan.label}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  if (c.design_type) {
+    const typeLabel = c.design_type === 'realiste' ? '🌿 Réaliste (Génétique stricte)' : '✨ Semi-Réaliste';
+    rows += `
+      <div class="det-field full">
+        <div class="det-label">Type de Design</div>
+        <div class="det-value" style="color: var(--gold); font-style: italic;">${typeLabel}</div>
+      </div>
+    `;
+  }
+
+// --- NOUVEAU : DÉTAIL DE L'HÉRITAGE SANGUIN ---
+  const bloodMix = getBloodline(c);
+  let bloodDetails = '';
+  // On trie les pourcentages du plus grand au plus petit
+  const sortedBlood = Object.entries(bloodMix).sort((a, b) => b[1] - a[1]);
+  
+  for (const [cl, val] of sortedBlood) {
+    if (val > 0) {
+      const clanData = CLANS[cl] || { label: cl, color: '#888' };
+      // Retire les décimales si le chiffre est rond, sinon garde 1 chiffre après la virgule
+      const displayVal = val % 1 === 0 ? val : val.toFixed(1);
+      bloodDetails += `<span style="display:inline-block; margin-right: 10px; color:${clanData.color}; font-weight:600; font-size:11px;">${displayVal}% ${clanData.label}</span>`;
+    }
+  }
+
+  rows += `
+    <div class="det-field full">
+      <div class="det-label">Héritage sanguin (Génétique)</div>
+      <div class="det-value" style="margin-top: 2px;">${bloodDetails}</div>
+    </div>
+  `;
+
+  // --- NOUVEAU : PARTENAIRES & EX ---
+  if (c.bio_mates && c.bio_mates.length) {
+    rows += `
+      <div class="det-field full">
+        <div class="det-label">Partenaire(s) actuel(s)</div>
+        <div class="det-value family-chips">${chips(c.bio_mates)}</div>
+      </div>
+    `;
+  }
+
+  if (c.ex_mates && c.ex_mates.length) {
+    rows += `
+      <div class="det-field full">
+        <div class="det-label">Ex-partenaire(s)</div>
+        <div class="det-value family-chips">${chips(c.ex_mates)}</div>
+      </div>
+    `;
+  }
+  // ----------------------------------
+
+  if (c.bio_parents && c.bio_parents.length) {
+    rows += `
+      <div class="det-field full">
+        <div class="det-label">Parents biologiques</div>
+        <div class="det-value family-chips">${chips(c.bio_parents)}</div>
+      </div>
+    `;
+  }
+
+  if (c.adopt_parents && c.adopt_parents.length) {
+    rows += `
+      <div class="det-field full">
+        <div class="det-label">Parents adoptifs</div>
+        <div class="det-value family-chips">${chips(c.adopt_parents, true)}</div>
+      </div>
+    `;
+  }
+
+  if (c.bio_children && c.bio_children.length) {
+    rows += `
+      <div class="det-field full">
+        <div class="det-label">Enfants biologiques</div>
+        <div class="det-value family-chips">${chips(c.bio_children)}</div>
+      </div>
+    `;
+  }
+
+  if (c.adopt_children && c.adopt_children.length) {
+    rows += `
+      <div class="det-field full">
+        <div class="det-label">Enfants adoptifs</div>
+        <div class="det-value family-chips">${chips(c.adopt_children, true)}</div>
+      </div>
+    `;
+  }
+
+if (uniqueGrandparents.length) {
+    rows += `
+      <div class="det-field full">
+        <div class="det-label">Grands-parents</div>
+        <div class="det-value family-chips">${chips(uniqueGrandparents)}</div>
+      </div>
+    `;
+  }
+
+  if (siblings.length) {
+    rows += `
+      <div class="det-field full">
+        <div class="det-label">Frères et Sœurs</div>
+        <div class="det-value family-chips">${chips(siblings)}</div>
+      </div>
+    `;
+  }
+
+  // --- NOUVEAU : MENTOR & APPRENTIS ---
+  if (c.mentor && charMap[c.mentor]) {
+    rows += `
+      <div class="det-field full">
+        <div class="det-label">Mentor</div>
+        <div class="det-value family-chips">${chips([c.mentor])}</div>
+      </div>
+    `;
+  }
+
+  if (c.apprentices && c.apprentices.length) {
+    rows += `
+      <div class="det-field full">
+        <div class="det-label">Apprentis</div>
+        <div class="det-value family-chips">${chips(c.apprentices)}</div>
+      </div>
+    `;
+  }
+  // ------------------------------------
+
+  if (c.notes) {
+    rows += `
+      <div class="det-field full">
+        <div class="det-label">Notes</div>
+        <div class="det-value" style="color:var(--text-dim);font-style:italic;font-family:'Crimson Pro',serif">${c.notes}</div>
+      </div>
+    `;
+  }
+
+  panel.className = 'detail-panel visible';
+  panel.innerHTML = `
+    <div class="det-header">
+      <div class="det-avatar" style="border-color:${clan.color}60">${avatarContent}</div>
+      <div>
+        <div class="det-name">${c.name}</div>
+        <div class="det-sub">${rank}${origin ? ` · Originaire : ${origin.label}` : ''}</div>
+      </div>
+      <button class="det-close" onclick="closeDetail()">✕ Fermer</button>
+    </div>
+    <div class="det-grid">${rows}</div>
+  `;
+
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ACTIONS
+───────────────────────────────────────────────────────────── */
+function selectChar(id) {
+  selectedId = selectedId === id ? null : id;
+  renderAll();
+}
+
+function closeDetail() {
+  selectedId = null;
+  renderAll();
+}
+
+// Make accessible from inline onclick in detail panel
+window.selectChar  = selectChar;
+window.closeDetail = closeDetail;
+
+function renderAll() {
+  renderCards(allChars);
+  renderLines(allChars);
+  renderDetail();
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MINI-MAP (RADAR)
+───────────────────────────────────────────────────────────── */
+function renderMinimap(W, H) {
+  const mSvg = document.getElementById('minimap-svg');
+  if (!mSvg) return;
+  mSvg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  
+  let circles = '';
+  allChars.forEach(c => {
+     const clan = CLANS[c.clan] || { color: '#888' };
+     // Dessine un petit point aux coordonnées de chaque carte
+     circles += `<circle cx="${cardCx(c)}" cy="${cardCy(c)}" r="30" fill="${clan.color}" opacity="0.8" />`;
+  });
+  
+  // Le cadre de la caméra
+  circles += `<rect id="minimap-view" x="0" y="0" width="100" height="100"></rect>`;
+  mSvg.innerHTML = circles;
+  updateMinimapView();
+}
+
+function updateMinimapView() {
+   const rect = document.getElementById('minimap-view');
+   if(!rect || !window.pzInstance) return;
+   
+   const scale = window.pzInstance.getScale();
+   const pan = window.pzInstance.getPan();
+   const outer = document.getElementById('tree-outer');
+   
+   // Calcule la zone visible à l'écran par rapport à l'arbre entier
+   const vW = outer.clientWidth / scale;
+   const vH = outer.clientHeight / scale;
+   const vX = -pan.x / scale;
+   const vY = -pan.y / scale;
+   
+   rect.setAttribute('x', vX);
+   rect.setAttribute('y', vY);
+   rect.setAttribute('width', vW);
+   rect.setAttribute('height', vH);
+}
+
+// Clic stratégique sur la mini-map pour se téléporter !
+document.getElementById('minimap-container').addEventListener('click', (e) => {
+    if (!window.pzInstance) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const xPercent = (e.clientX - rect.left) / rect.width;
+    const yPercent = (e.clientY - rect.top) / rect.height;
+    
+    const mSvg = document.getElementById('minimap-svg');
+    const viewBox = mSvg.getAttribute('viewBox').split(' ');
+    const W = parseFloat(viewBox[2]);
+    const H = parseFloat(viewBox[3]);
+    
+    const targetX = W * xPercent;
+    const targetY = H * yPercent;
+    const scale = window.pzInstance.getScale();
+    const outer = document.getElementById('tree-outer');
+    
+    const panX = -(targetX * scale) + (outer.clientWidth / 2);
+    const panY = -(targetY * scale) + (outer.clientHeight / 2);
+    
+    window.pzInstance.pan(panX, panY, { animate: true });
+});
+
+/* ─────────────────────────────────────────────────────────────
+   INIT — load characters.json then render
+───────────────────────────────────────────────────────────── */
+async function init() {
+  try {
+    const res  = await fetch('data/characters.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    // Apply config
+    if (data.config) {
+      if (data.config.title)    document.getElementById('site-title').textContent    = data.config.title;
+      if (data.config.subtitle) document.getElementById('site-subtitle').textContent = data.config.subtitle;
+      if (data.config.title)    document.title = data.config.title;
+    }
+
+    allChars = data.characters || [];
+    allChars.forEach(c => { charMap[c.id] = c; });
+
+    document.getElementById('status-msg').style.display = 'none';
+    document.getElementById('tree-outer').style.display  = 'block';
+
+    // --- MAGIE DU ZOOM ET DU GLISSEMENT ---
+    const elem = document.getElementById('tree-wrap');
+    const panzoomInstance = Panzoom(elem, {
+      maxScale: 2.5,
+      minScale: 0.1,      // Autorise à dézoomer beaucoup plus loin
+      step: 0.15,
+      startScale: 0.4,    // <-- LA LIGNE MAGIQUE : 0.6 = 60% de la taille normale
+      contain: 'outside'
+    });
+    
+    // Zoom avec la molette de la souris
+    elem.parentElement.addEventListener('wheel', panzoomInstance.zoomWithWheel);
+
+        window.pzInstance = panzoomInstance; // On la rend accessible au radar
+        elem.addEventListener('panzoomchange', updateMinimapView); // Bouge le cadre quand on glisse
+        window.addEventListener('resize', updateMinimapView); // Ajuste si on tourne son téléphone
+    
+    // --- NOUVEAU : LA BOUSSOLE ---
+    document.getElementById('reset-zoom').addEventListener('click', () => {
+      panzoomInstance.reset(); // Panzoom a une fonction "reset" intégrée !
+    });
+
+    renderFilters();
+    renderAll();
+  } catch (err) {
+    document.getElementById('status-msg').innerHTML =
+      `<p style="color:#c94040">Erreur de chargement : ${err.message}</p>
+       <p style="margin-top:1rem;font-size:0.9rem">
+         Vérifie que le fichier <code>data/characters.json</code> existe et que le site est hébergé sur GitHub Pages
+         (le chargement local via <code>file://</code> ne fonctionne pas).
+       </p>`;
+  }
+
+  document.getElementById('btn-changelog').addEventListener('click', () => {
+  document.getElementById('changelog-modal').className = 'modal-visible';
+  });
+  document.getElementById('close-changelog').addEventListener('click', () => {
+    document.getElementById('changelog-modal').className = 'modal-hidden';
+  });
+
+  // Activer le mode photo
+    document.getElementById('btn-photo').addEventListener('click', () => {
+      document.body.classList.add('photo-mode');
+    });
+    // Quitter le mode photo
+    document.getElementById('btn-exit-photo').addEventListener('click', () => {
+      document.body.classList.remove('photo-mode');
+    });
+
+  // --- LOGIQUE DU TESTEUR DE COMPATIBILITÉ ---
+document.getElementById('btn-compat').addEventListener('click', () => {
+  document.getElementById('compat-modal').className = 'modal-visible';
+  document.getElementById('compat-result').style.display = 'none'; // On cache le résultat précédent
+  
+  // Remplir les listes déroulantes avec les noms des chats par ordre alphabétique
+  const s1 = document.getElementById('compat-cat1');
+  const s2 = document.getElementById('compat-cat2');
+  let options = '<option value="">-- Choisir un félin --</option>';
+  
+  const sorted = [...allChars].sort((a,b) => a.name.localeCompare(b.name));
+  sorted.forEach(c => {
+     options += `<option value="${c.id}">${c.name} (${CLANS[c.clan] ? CLANS[c.clan].label : c.clan})</option>`;
+  });
+  s1.innerHTML = options;
+  s2.innerHTML = options;
+});
+
+document.getElementById('close-compat').addEventListener('click', () => {
+  document.getElementById('compat-modal').className = 'modal-hidden';
+});
+
+// Le bouton de calcul !
+document.getElementById('run-compat').addEventListener('click', () => {
+   const id1 = document.getElementById('compat-cat1').value;
+   const id2 = document.getElementById('compat-cat2').value;
+   const resDiv = document.getElementById('compat-result');
+   
+   if(!id1 || !id2) return; // Si le joueur n'a pas sélectionné deux chats
+   
+   if(id1 === id2) {
+       resDiv.style.display = 'block';
+       resDiv.style.background = 'rgba(180,160,100,0.1)';
+       resDiv.style.border = '1px solid var(--border)';
+       resDiv.innerHTML = "Vous essayez de mettre un chat en couple avec lui-même... Le Clan des Étoiles est perplexe !";
+       return;
+   }
+   
+   // On utilise la machine à remonter le temps (4 générations)
+   const anc1 = getAncestors(id1, 4); 
+   const anc2 = getAncestors(id2, 4);
+   
+   // On vérifie s'ils partagent un identifiant
+   const common = anc1.filter(a => anc2.includes(a));
+   
+   resDiv.style.display = 'block';
+   if(common.length > 0) {
+       // Catastrophe, ils sont cousins !
+       const commonNames = common.map(id => charMap[id] ? charMap[id].name : id).join(', ');
+       resDiv.style.background = 'rgba(201, 64, 64, 0.15)';
+       resDiv.style.border = '1px dashed #c94040';
+       resDiv.innerHTML = `❌ <strong>Alerte Consanguinité !</strong><br>Ces chats partagent des ancêtres à moins de 4 générations : <span style="color: #c94040; font-weight: bold;">${commonNames}</span>. <br><br><em>Relation non autorisée par le règlement.</em>`;
+   } else {
+       // Tout va bien !
+       resDiv.style.background = 'rgba(45,143,94,0.15)';
+       resDiv.style.border = '1px dashed #2d8f5e';
+       resDiv.innerHTML = `✅ <strong>Feu Vert !</strong><br>Aucun lien de sang direct sur les 4 dernières générations. <br><br><em>Le Clan des Étoiles donne sa bénédiction à cette union !</em>`;
+   }
+}); // <-- LA FAMEUSE ACCOLADE DE FERMETURE ÉTAIT MANQUANTE ICI !
+
+  // --- CHANGEMENT DE SAISON ---
+    const seasonSelect = document.getElementById('season-selector');
+    if (seasonSelect) {
+      seasonSelect.addEventListener('change', (e) => {
+        const selectedSeason = e.target.value;
+        if (selectedSeason === 'default') {
+          document.documentElement.removeAttribute('data-theme');
+        } else {
+          document.documentElement.setAttribute('data-theme', selectedSeason);
+        }
+      });
+    } else {
+      console.error("Alerte : Le menu des saisons (season-selector) est introuvable !");
+    }
+// -------------------------------------------
+
+/* ─────────────────────────────────────────────────────────────
+   HALL OF FAME (PANTHÉON)
+───────────────────────────────────────────────────────────── */
+document.getElementById('btn-hof').addEventListener('click', () => {
+  // 1. On ouvre la fenêtre
+  document.getElementById('hof-modal').className = 'modal-visible';
+  
+  // 2. On prépare les variables pour nos champions (C'EST ICI QUE ÇA PLANTAIT !)
+  let mostChildren = null; let maxChildren = 0;
+  let mostApprentices = null; let maxApprentices = 0;
+  let mostMates = null; let maxMates = 0;
+  let mostMixed = null; let maxMix = 0; // <-- Les voici, les variables manquantes !
+  let clanCounts = {};
+
+  // 3. On fait passer le casting à tous les chats !
+  allChars.forEach(c => {
+    // A. Calcul du Patriarche/Matriarche
+    const childrenCount = (c.bio_children ? c.bio_children.length : 0) + (c.adopt_children ? c.adopt_children.length : 0);
+    if (childrenCount > maxChildren) { maxChildren = childrenCount; mostChildren = c; }
+
+    // B. L'Héritier des Clans (Diversité génétique)
+    const bloodMix = getBloodline(c);
+    const clanCount = Object.keys(bloodMix).length;
+    if (clanCount > maxMix) { maxMix = clanCount; mostMixed = c; }
+
+    // C. Calcul du Mentor Légendaire
+    const appCount = c.apprentices ? c.apprentices.length : 0;
+    if (appCount > maxApprentices) { maxApprentices = appCount; mostApprentices = c; }
+
+    // D. Calcul du Casanova
+    const matesCount = (c.bio_mates ? c.bio_mates.length : 0) + (c.ex_mates ? c.ex_mates.length : 0);
+    if (matesCount > maxMates) { maxMates = matesCount; mostMates = c; }
+
+    // E. Recensement des Clans
+    if (c.clan && c.clan !== 'sans_clan') {
+      clanCounts[c.clan] = (clanCounts[c.clan] || 0) + 1;
+    }
+  });
+
+  // F. Trouver le clan le plus puissant
+  let biggestClan = ''; let maxClanPop = 0;
+  for (const [clanId, count] of Object.entries(clanCounts)) {
+    if (count > maxClanPop) { maxClanPop = count; biggestClan = clanId; }
+  }
+
+  // 4. On prépare les belles boîtes (Cartes de records)
+  const hofDiv = document.getElementById('hof-results');
+  
+  const createCard = (icon, title, cat, value, desc) => `
+    <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-med); border-radius: 4px; padding: 12px; transition: transform 0.2s;">
+      <div style="font-size: 24px; margin-bottom: 5px;">${icon}</div>
+      <div style="font-family: 'Cinzel', serif; font-size: 13px; color: #ffd700; margin-bottom: 3px; text-transform: uppercase;">${title}</div>
+      <div style="font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 2px;">${cat ? cat.name : 'Mystère...'}</div>
+      <div style="font-size: 11px; color: var(--text-dim); font-style: italic;">${value} ${desc}</div>
+    </div>
+  `;
+
+  // 5. On injecte le tout dans la page
+  hofDiv.innerHTML = `
+    ${createCard('👑', 'La Lignée Royale', mostChildren, maxChildren, 'descendants directs.')}
+    ${createCard('🧬', "L'Héritier des Clans", mostMixed, maxMix, 'clans différents dans ses veines.')}
+    ${createCard('🦉', 'Le Mentor Légendaire', mostApprentices, maxApprentices, 'apprentis formés.')}
+    ${createCard('💔', 'Le Cœur Volage', mostMates, maxMates, 'partenaires & ex au compteur.')}
+    <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-med); border-radius: 4px; padding: 12px; grid-column: span 2;">
+      <div style="font-size: 24px; margin-bottom: 5px;">🏰</div>
+      <div style="font-family: 'Cinzel', serif; font-size: 13px; color: #ffd700; margin-bottom: 3px; text-transform: uppercase;">Le Clan Dominant</div>
+      <div style="font-size: 15px; font-weight: 500; color: ${CLANS[biggestClan] ? CLANS[biggestClan].color : '#fff'}; margin-bottom: 2px;">${CLANS[biggestClan] ? CLANS[biggestClan].label : biggestClan}</div>
+      <div style="font-size: 11px; color: var(--text-dim); font-style: italic;">${maxClanPop} félins recensés actuellement.</div>
+    </div>
+  `;
+});
+
+// Fermeture de la fenêtre
+document.getElementById('close-hof').addEventListener('click', () => {
+  document.getElementById('hof-modal').className = 'modal-hidden';
+});
+
+} // <-- FIN DE LA GRANDE FONCTION INIT()
+
+init();
+</script>
+</body>
+</html>
