@@ -3,7 +3,7 @@
     "title": "La Guerre des Clans",
     "description": "Arbre généalogique du serveur RP",
     "version": "1.0",
-    "exported_at": "2026-05-09T14:53:10.988Z"
+    "exported_at": "2026-05-09T15:05:49.791Z"
   },
   "characters": [
     {
@@ -17,18 +17,11 @@
       "gen": 0,
       "col": 15,
       "bio_parents": [],
-      "bio_mates": [
-        2
-      ],
+      "bio_mates": [2],
       "ex_mates": [],
-      "bio_children": [
-        3,
-        5
-      ],
+      "bio_children": [3, 5],
       "adopt_parents": [],
-      "adopt_children": [
-        4
-      ],
+      "adopt_children": [4],
       "mentor": null,
       "apprentices": [],
       "player": "PNJ",
@@ -47,18 +40,11 @@
       "gen": 0,
       "col": 25,
       "bio_parents": [],
-      "bio_mates": [
-        1
-      ],
+      "bio_mates": [1],
       "ex_mates": [],
-      "bio_children": [
-        3,
-        5
-      ],
+      "bio_children": [3, 5],
       "adopt_parents": [],
-      "adopt_children": [
-        4
-      ],
+      "adopt_children": [4],
       "mentor": null,
       "apprentices": [],
       "player": "PNJ",
@@ -76,10 +62,7 @@
       "afterlife": "sombre",
       "gen": 1,
       "col": 20,
-      "bio_parents": [
-        1,
-        2
-      ],
+      "bio_parents": [1, 2],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -101,15 +84,12 @@
       "status": "vivant",
       "afterlife": "",
       "gen": 1,
-      "col": -2207650161000,
+      "col": 16,
       "bio_parents": [],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
-      "adopt_parents": [
-        1,
-        2
-      ],
+      "adopt_parents": [1, 2],
       "adopt_children": [],
       "mentor": null,
       "apprentices": [],
@@ -127,14 +107,9 @@
       "status": "vivant",
       "afterlife": "",
       "gen": 1,
-      "col": -2207218161000,
-      "bio_parents": [
-        1,
-        2
-      ],
-      "bio_mates": [
-        6
-      ],
+      "col": 21.1,
+      "bio_parents": [1, 2],
+      "bio_mates": [6],
       "ex_mates": [],
       "bio_children": [],
       "adopt_parents": [],
@@ -155,11 +130,9 @@
       "status": "vivant",
       "afterlife": "",
       "gen": 1,
-      "col": -2206699761000,
+      "col": 27.1,
       "bio_parents": [],
-      "bio_mates": [
-        5
-      ],
+      "bio_mates": [5],
       "ex_mates": [],
       "bio_children": [],
       "adopt_parents": [],
@@ -180,20 +153,13 @@
       "status": "vivant",
       "afterlife": "",
       "gen": 2,
-      "col": -2207131761000,
-      "bio_parents": [
-        5,
-        6
-      ],
+      "col": 22.1,
+      "bio_parents": [5, 6],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
       "adopt_parents": [],
-      "adopt_children": [
-        12,
-        13,
-        14
-      ],
+      "adopt_children": [12, 13, 14],
       "mentor": null,
       "apprentices": [],
       "player": "PNJ",
@@ -210,11 +176,8 @@
       "status": "vivant",
       "afterlife": "",
       "gen": 2,
-      "col": -2206958961000,
-      "bio_parents": [
-        5,
-        6
-      ],
+      "col": 24.1,
+      "bio_parents": [5, 6],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -236,11 +199,8 @@
       "status": "vivant",
       "afterlife": "",
       "gen": 2,
-      "col": -2206786161000,
-      "bio_parents": [
-        5,
-        6
-      ],
+      "col": 26.1,
+      "bio_parents": [5, 6],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -265,14 +225,8 @@
       "col": 60,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        11
-      ],
-      "bio_children": [
-        12,
-        13,
-        14
-      ],
+      "ex_mates": [11],
+      "bio_children": [12, 13, 14],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -294,14 +248,8 @@
       "col": 70,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        10
-      ],
-      "bio_children": [
-        12,
-        13,
-        14
-      ],
+      "ex_mates": [10],
+      "bio_children": [12, 13, 14],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -321,16 +269,11 @@
       "afterlife": "",
       "gen": 3,
       "col": 62,
-      "bio_parents": [
-        10,
-        11
-      ],
+      "bio_parents": [10, 11],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
-      "adopt_parents": [
-        7
-      ],
+      "adopt_parents": [7],
       "adopt_children": [],
       "mentor": null,
       "apprentices": [],
@@ -349,16 +292,11 @@
       "afterlife": "",
       "gen": 3,
       "col": 65,
-      "bio_parents": [
-        10,
-        11
-      ],
+      "bio_parents": [10, 11],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
-      "adopt_parents": [
-        7
-      ],
+      "adopt_parents": [7],
       "adopt_children": [],
       "mentor": null,
       "apprentices": [],
@@ -377,16 +315,11 @@
       "afterlife": "",
       "gen": 3,
       "col": 68,
-      "bio_parents": [
-        10,
-        11
-      ],
+      "bio_parents": [10, 11],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
-      "adopt_parents": [
-        7
-      ],
+      "adopt_parents": [7],
       "adopt_children": [],
       "mentor": null,
       "apprentices": [],
@@ -407,9 +340,7 @@
       "col": 100,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        16
-      ],
+      "ex_mates": [16],
       "bio_children": [],
       "adopt_parents": [],
       "adopt_children": [],
@@ -432,17 +363,8 @@
       "col": 110,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        15,
-        17
-      ],
-      "bio_children": [
-        18,
-        19,
-        20,
-        25,
-        26
-      ],
+      "ex_mates": [15, 17],
+      "bio_children": [18, 19, 20, 25, 26],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -464,14 +386,8 @@
       "col": 120,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        16
-      ],
-      "bio_children": [
-        18,
-        19,
-        20
-      ],
+      "ex_mates": [16],
+      "bio_children": [18, 19, 20],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -491,12 +407,9 @@
       "afterlife": "etoiles",
       "gen": 1,
       "col": 112,
-      "bio_parents": [
-        16,
-        17
-      ],
+      "bio_parents": [16, 17],
       "bio_mates": [],
-      "ex_mates": [],
+      "ex_mates": [23],
       "bio_children": [],
       "adopt_parents": [],
       "adopt_children": [],
@@ -517,10 +430,7 @@
       "afterlife": "",
       "gen": 1,
       "col": 115,
-      "bio_parents": [
-        16,
-        17
-      ],
+      "bio_parents": [16, 17],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -543,18 +453,10 @@
       "afterlife": "etoiles",
       "gen": 1,
       "col": 118,
-      "bio_parents": [
-        16,
-        17
-      ],
+      "bio_parents": [16, 17],
       "bio_mates": [],
-      "ex_mates": [
-        78
-      ],
-      "bio_children": [
-        21,
-        22
-      ],
+      "ex_mates": [78],
+      "bio_children": [21, 22],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -574,17 +476,11 @@
       "afterlife": "",
       "gen": 2,
       "col": 121,
-      "bio_parents": [
-        20,
-        78
-      ],
+      "bio_parents": [20, 78],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
-      "adopt_parents": [
-        27,
-        28
-      ],
+      "adopt_parents": [27, 28],
       "adopt_children": [],
       "mentor": null,
       "apprentices": [],
@@ -603,17 +499,11 @@
       "afterlife": "",
       "gen": 2,
       "col": 125,
-      "bio_parents": [
-        20,
-        78
-      ],
+      "bio_parents": [20, 78],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
-      "adopt_parents": [
-        27,
-        28
-      ],
+      "adopt_parents": [27, 28],
       "adopt_children": [],
       "mentor": null,
       "apprentices": [],
@@ -634,9 +524,7 @@
       "col": 102,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        18
-      ],
+      "ex_mates": [18],
       "bio_children": [],
       "adopt_parents": [],
       "adopt_children": [],
@@ -657,10 +545,7 @@
       "afterlife": "",
       "gen": 2,
       "col": 109,
-      "bio_parents": [
-        23,
-        18
-      ],
+      "bio_parents": [23, 18],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -683,10 +568,7 @@
       "afterlife": "",
       "gen": 2,
       "col": 103,
-      "bio_parents": [
-        15,
-        16
-      ],
+      "bio_parents": [15, 16],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -709,10 +591,7 @@
       "afterlife": "",
       "gen": 2,
       "col": 107,
-      "bio_parents": [
-        15,
-        16
-      ],
+      "bio_parents": [15, 16],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -736,21 +615,11 @@
       "gen": 0,
       "col": 160,
       "bio_parents": [],
-      "bio_mates": [
-        28
-      ],
+      "bio_mates": [28],
       "ex_mates": [],
-      "bio_children": [
-        29,
-        30,
-        31,
-        32
-      ],
+      "bio_children": [29, 30, 31, 32],
       "adopt_parents": [],
-      "adopt_children": [
-        21,
-        22
-      ],
+      "adopt_children": [21, 22],
       "mentor": null,
       "apprentices": [],
       "player": "PNJ",
@@ -769,21 +638,11 @@
       "gen": 0,
       "col": 170,
       "bio_parents": [],
-      "bio_mates": [
-        27
-      ],
+      "bio_mates": [27],
       "ex_mates": [],
-      "bio_children": [
-        29,
-        30,
-        31,
-        32
-      ],
+      "bio_children": [29, 30, 31, 32],
       "adopt_parents": [],
-      "adopt_children": [
-        21,
-        22
-      ],
+      "adopt_children": [21, 22],
       "mentor": null,
       "apprentices": [],
       "player": "PNJ",
@@ -801,10 +660,7 @@
       "afterlife": "etoiles",
       "gen": 1,
       "col": 160.5,
-      "bio_parents": [
-        27,
-        28
-      ],
+      "bio_parents": [27, 28],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -827,10 +683,7 @@
       "afterlife": "etoiles",
       "gen": 1,
       "col": 163.5,
-      "bio_parents": [
-        27,
-        28
-      ],
+      "bio_parents": [27, 28],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -853,10 +706,7 @@
       "afterlife": "etoiles",
       "gen": 1,
       "col": 166.5,
-      "bio_parents": [
-        27,
-        28
-      ],
+      "bio_parents": [27, 28],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -879,22 +729,14 @@
       "afterlife": "",
       "gen": 1,
       "col": 169.5,
-      "bio_parents": [
-        27,
-        28
-      ],
+      "bio_parents": [27, 28],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
       "adopt_parents": [],
-      "adopt_children": [
-        33,
-        34
-      ],
+      "adopt_children": [33, 34],
       "mentor": 59,
-      "apprentices": [
-        72
-      ],
+      "apprentices": [72],
       "player": "@.araxia.",
       "design_type": "semi_realiste",
       "notes": "",
@@ -910,16 +752,11 @@
       "afterlife": "",
       "gen": 2,
       "col": 203,
-      "bio_parents": [
-        35,
-        36
-      ],
+      "bio_parents": [35, 36],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
-      "adopt_parents": [
-        32
-      ],
+      "adopt_parents": [32],
       "adopt_children": [],
       "mentor": null,
       "apprentices": [],
@@ -938,16 +775,11 @@
       "afterlife": "",
       "gen": 2,
       "col": 207,
-      "bio_parents": [
-        35,
-        36
-      ],
+      "bio_parents": [35, 36],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
-      "adopt_parents": [
-        32
-      ],
+      "adopt_parents": [32],
       "adopt_children": [],
       "mentor": null,
       "apprentices": [],
@@ -968,13 +800,8 @@
       "col": 200,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        36
-      ],
-      "bio_children": [
-        33,
-        34
-      ],
+      "ex_mates": [36],
+      "bio_children": [33, 34],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -996,19 +823,12 @@
       "col": 210,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        35
-      ],
-      "bio_children": [
-        33,
-        34
-      ],
+      "ex_mates": [35],
+      "bio_children": [33, 34],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
-      "apprentices": [
-        88
-      ],
+      "apprentices": [88],
       "player": "@Oriyakii",
       "design_type": "realiste",
       "notes": "",
@@ -1025,15 +845,9 @@
       "gen": 0,
       "col": 245,
       "bio_parents": [],
-      "bio_mates": [
-        38
-      ],
+      "bio_mates": [38],
       "ex_mates": [],
-      "bio_children": [
-        39,
-        40,
-        41
-      ],
+      "bio_children": [39, 40, 41],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -1054,15 +868,9 @@
       "gen": 0,
       "col": 255,
       "bio_parents": [],
-      "bio_mates": [
-        37
-      ],
+      "bio_mates": [37],
       "ex_mates": [],
-      "bio_children": [
-        39,
-        40,
-        41
-      ],
+      "bio_children": [39, 40, 41],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -1082,18 +890,10 @@
       "afterlife": "",
       "gen": 1,
       "col": 246,
-      "bio_parents": [
-        37,
-        38
-      ],
-      "bio_mates": [
-        42
-      ],
+      "bio_parents": [37, 38],
+      "bio_mates": [42],
       "ex_mates": [],
-      "bio_children": [
-        43,
-        44
-      ],
+      "bio_children": [43, 44],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -1113,19 +913,10 @@
       "afterlife": "",
       "gen": 1,
       "col": 250,
-      "bio_parents": [
-        37,
-        38
-      ],
+      "bio_parents": [37, 38],
       "bio_mates": [],
-      "ex_mates": [
-        45
-      ],
-      "bio_children": [
-        46,
-        47,
-        48
-      ],
+      "ex_mates": [45],
+      "bio_children": [46, 47, 48],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -1145,10 +936,7 @@
       "afterlife": "",
       "gen": 1,
       "col": 254,
-      "bio_parents": [
-        37,
-        38
-      ],
+      "bio_parents": [37, 38],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1172,14 +960,9 @@
       "gen": 1,
       "col": 238,
       "bio_parents": [],
-      "bio_mates": [
-        39
-      ],
+      "bio_mates": [39],
       "ex_mates": [],
-      "bio_children": [
-        43,
-        44
-      ],
+      "bio_children": [43, 44],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -1199,10 +982,7 @@
       "afterlife": "",
       "gen": 2,
       "col": 240,
-      "bio_parents": [
-        39,
-        42
-      ],
+      "bio_parents": [39, 42],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1225,10 +1005,7 @@
       "afterlife": "",
       "gen": 2,
       "col": 244,
-      "bio_parents": [
-        39,
-        42
-      ],
+      "bio_parents": [39, 42],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1251,25 +1028,14 @@
       "afterlife": "sombre",
       "gen": 1,
       "col": 298,
-      "bio_parents": [
-        49,
-        50
-      ],
+      "bio_parents": [49, 50],
       "bio_mates": [],
-      "ex_mates": [
-        40
-      ],
-      "bio_children": [
-        46,
-        47,
-        48
-      ],
+      "ex_mates": [40],
+      "bio_children": [46, 47, 48],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
-      "apprentices": [
-        56
-      ],
+      "apprentices": [56],
       "player": "@.araxia.",
       "design_type": "realiste",
       "notes": "",
@@ -1285,10 +1051,7 @@
       "afterlife": "",
       "gen": 2,
       "col": 295,
-      "bio_parents": [
-        40,
-        45
-      ],
+      "bio_parents": [40, 45],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1311,10 +1074,7 @@
       "afterlife": "etoiles",
       "gen": 2,
       "col": 298,
-      "bio_parents": [
-        40,
-        45
-      ],
+      "bio_parents": [40, 45],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1337,10 +1097,7 @@
       "afterlife": "etoiles",
       "gen": 2,
       "col": 301,
-      "bio_parents": [
-        40,
-        45
-      ],
+      "bio_parents": [40, 45],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1365,13 +1122,8 @@
       "col": 295,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        50
-      ],
-      "bio_children": [
-        45,
-        51
-      ],
+      "ex_mates": [50],
+      "bio_children": [45, 51],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -1393,13 +1145,8 @@
       "col": 305,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        49
-      ],
-      "bio_children": [
-        45,
-        51
-      ],
+      "ex_mates": [49],
+      "bio_children": [45, 51],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -1419,10 +1166,7 @@
       "afterlife": "etoiles",
       "gen": 1,
       "col": 302,
-      "bio_parents": [
-        49,
-        50
-      ],
+      "bio_parents": [49, 50],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1447,14 +1191,8 @@
       "col": 340,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        53
-      ],
-      "bio_children": [
-        54,
-        55,
-        56
-      ],
+      "ex_mates": [53],
+      "bio_children": [54, 55, 56],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -1476,14 +1214,8 @@
       "col": 350,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        52
-      ],
-      "bio_children": [
-        54,
-        55,
-        56
-      ],
+      "ex_mates": [52],
+      "bio_children": [54, 55, 56],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -1503,10 +1235,7 @@
       "afterlife": "",
       "gen": 2,
       "col": 342,
-      "bio_parents": [
-        52,
-        53
-      ],
+      "bio_parents": [52, 53],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1529,10 +1258,7 @@
       "afterlife": "",
       "gen": 2,
       "col": 345,
-      "bio_parents": [
-        52,
-        53
-      ],
+      "bio_parents": [52, 53],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1555,10 +1281,7 @@
       "afterlife": "",
       "gen": 2,
       "col": 348,
-      "bio_parents": [
-        52,
-        53
-      ],
+      "bio_parents": [52, 53],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1583,13 +1306,8 @@
       "col": 380,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        58
-      ],
-      "bio_children": [
-        59,
-        60
-      ],
+      "ex_mates": [58],
+      "bio_children": [59, 60],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -1611,13 +1329,8 @@
       "col": 390,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        57
-      ],
-      "bio_children": [
-        59,
-        60
-      ],
+      "ex_mates": [57],
+      "bio_children": [59, 60],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -1637,19 +1350,14 @@
       "afterlife": "",
       "gen": 1,
       "col": 383,
-      "bio_parents": [
-        57,
-        58
-      ],
+      "bio_parents": [57, 58],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
-      "apprentices": [
-        32
-      ],
+      "apprentices": [32],
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
@@ -1665,10 +1373,7 @@
       "afterlife": "",
       "gen": 1,
       "col": 387,
-      "bio_parents": [
-        57,
-        58
-      ],
+      "bio_parents": [57, 58],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1693,12 +1398,8 @@
       "col": 420,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        62
-      ],
-      "bio_children": [
-        63
-      ],
+      "ex_mates": [62],
+      "bio_children": [63],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -1720,12 +1421,8 @@
       "col": 430,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        61
-      ],
-      "bio_children": [
-        63
-      ],
+      "ex_mates": [61],
+      "bio_children": [63],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -1745,10 +1442,7 @@
       "afterlife": "",
       "gen": 1,
       "col": 425,
-      "bio_parents": [
-        61,
-        62
-      ],
+      "bio_parents": [61, 62],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1773,9 +1467,7 @@
       "col": 460,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        65
-      ],
+      "ex_mates": [65],
       "bio_children": [],
       "adopt_parents": [],
       "adopt_children": [],
@@ -1798,9 +1490,7 @@
       "col": 470,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        64
-      ],
+      "ex_mates": [64],
       "bio_children": [],
       "adopt_parents": [],
       "adopt_children": [],
@@ -1821,10 +1511,7 @@
       "afterlife": "",
       "gen": 1,
       "col": 460,
-      "bio_parents": [
-        64,
-        65
-      ],
+      "bio_parents": [64, 65],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1847,10 +1534,7 @@
       "afterlife": "etoiles",
       "gen": 1,
       "col": 463,
-      "bio_parents": [
-        64,
-        65
-      ],
+      "bio_parents": [64, 65],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1873,10 +1557,7 @@
       "afterlife": "",
       "gen": 2,
       "col": 466,
-      "bio_parents": [
-        64,
-        65
-      ],
+      "bio_parents": [64, 65],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1899,10 +1580,7 @@
       "afterlife": "",
       "gen": 2,
       "col": 469,
-      "bio_parents": [
-        64,
-        65
-      ],
+      "bio_parents": [64, 65],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -1926,9 +1604,7 @@
       "gen": 0,
       "col": 500,
       "bio_parents": [],
-      "bio_mates": [
-        71
-      ],
+      "bio_mates": [71],
       "ex_mates": [],
       "bio_children": [],
       "adopt_parents": [],
@@ -1951,9 +1627,7 @@
       "gen": 0,
       "col": 510,
       "bio_parents": [],
-      "bio_mates": [
-        70
-      ],
+      "bio_mates": [70],
       "ex_mates": [],
       "bio_children": [],
       "adopt_parents": [],
@@ -1975,10 +1649,7 @@
       "afterlife": "",
       "gen": 2,
       "col": 505,
-      "bio_parents": [
-        70,
-        71
-      ],
+      "bio_parents": [70, 71],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -2003,9 +1674,7 @@
       "col": 540,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        74
-      ],
+      "ex_mates": [74],
       "bio_children": [],
       "adopt_parents": [],
       "adopt_children": [],
@@ -2028,9 +1697,7 @@
       "col": 550,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        73
-      ],
+      "ex_mates": [73],
       "bio_children": [],
       "adopt_parents": [],
       "adopt_children": [],
@@ -2051,10 +1718,7 @@
       "afterlife": "",
       "gen": 1,
       "col": 545,
-      "bio_parents": [
-        73,
-        74
-      ],
+      "bio_parents": [73, 74],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -2080,9 +1744,7 @@
       "bio_parents": [],
       "bio_mates": [],
       "ex_mates": [],
-      "bio_children": [
-        77
-      ],
+      "bio_children": [77],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -2102,10 +1764,7 @@
       "afterlife": "",
       "gen": 2,
       "col": 585,
-      "bio_parents": [
-        76,
-        79
-      ],
+      "bio_parents": [76, 79],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -2130,13 +1789,8 @@
       "col": 128,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        20
-      ],
-      "bio_children": [
-        21,
-        22
-      ],
+      "ex_mates": [20],
+      "bio_children": [21, 22],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -2158,12 +1812,8 @@
       "col": 590,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        76
-      ],
-      "bio_children": [
-        77
-      ],
+      "ex_mates": [76],
+      "bio_children": [77],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -2183,10 +1833,7 @@
       "afterlife": "",
       "gen": 1,
       "col": 620.5,
-      "bio_parents": [
-        81,
-        82
-      ],
+      "bio_parents": [81, 82],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -2211,15 +1858,8 @@
       "col": 620,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        82
-      ],
-      "bio_children": [
-        80,
-        83,
-        84,
-        85
-      ],
+      "ex_mates": [82],
+      "bio_children": [80, 83, 84, 85],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -2241,15 +1881,8 @@
       "col": 630,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        81
-      ],
-      "bio_children": [
-        80,
-        83,
-        84,
-        85
-      ],
+      "ex_mates": [81],
+      "bio_children": [80, 83, 84, 85],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -2269,10 +1902,7 @@
       "afterlife": "",
       "gen": 1,
       "col": 623.5,
-      "bio_parents": [
-        81,
-        82
-      ],
+      "bio_parents": [81, 82],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -2295,10 +1925,7 @@
       "afterlife": "",
       "gen": 1,
       "col": 626.5,
-      "bio_parents": [
-        81,
-        82
-      ],
+      "bio_parents": [81, 82],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -2321,10 +1948,7 @@
       "afterlife": "",
       "gen": 1,
       "col": 629.5,
-      "bio_parents": [
-        81,
-        82
-      ],
+      "bio_parents": [81, 82],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -2349,13 +1973,8 @@
       "col": 660,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        87
-      ],
-      "bio_children": [
-        88,
-        89
-      ],
+      "ex_mates": [87],
+      "bio_children": [88, 89],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -2377,13 +1996,8 @@
       "col": 670,
       "bio_parents": [],
       "bio_mates": [],
-      "ex_mates": [
-        86
-      ],
-      "bio_children": [
-        88,
-        89
-      ],
+      "ex_mates": [86],
+      "bio_children": [88, 89],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -2403,10 +2017,7 @@
       "afterlife": "",
       "gen": 1,
       "col": 663,
-      "bio_parents": [
-        86,
-        87
-      ],
+      "bio_parents": [86, 87],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
@@ -2429,10 +2040,7 @@
       "afterlife": "",
       "gen": 1,
       "col": 667,
-      "bio_parents": [
-        86,
-        87
-      ],
+      "bio_parents": [86, 87],
       "bio_mates": [],
       "ex_mates": [],
       "bio_children": [],
