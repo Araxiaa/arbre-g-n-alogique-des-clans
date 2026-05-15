@@ -6,7 +6,6 @@
   <title>Le Prix de la Trêve — Arbre Généalogique</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-  
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -25,6 +24,7 @@
     </div>
 
     <div class="nav-actions">
+      <button class="nav-btn" id="btn-stats" style="color: #5dbf8a; border-color: rgba(93, 191, 138, 0.5);">📊 Recensement</button>
       <button class="nav-btn" id="btn-compat">🧬 Compatibilité</button>
       <button class="nav-btn" id="btn-hof">🏆 Panthéon</button>
       <a href="https://araxiaa.github.io/chronique-des-clans/" target="_blank" class="nav-btn">⏳ Frise</a>
@@ -54,6 +54,7 @@
   </aside>
 
   <div id="status-msg">Chargement des chroniques…</div>
+  
   <div class="tree-outer" id="tree-outer" style="display:none">
     <div id="tree-wrap">
       <svg id="lines-svg"></svg>
@@ -63,7 +64,20 @@
   <aside class="detail-panel" id="detail-panel"></aside>
 
   <div id="minimap-container"><svg id="minimap-svg"></svg></div>
-  <button id="reset-zoom" class="boussole-btn">🧭 Recentrer l'arbre</button>
+  
+  <div id="zoom-controls">
+    <button id="btn-zoom-in" class="boussole-btn small">+</button>
+    <button id="btn-zoom-out" class="boussole-btn small">-</button>
+    <button id="reset-zoom" class="boussole-btn">🧭 Recentrer</button>
+  </div>
+
+  <div id="stats-modal" class="modal-hidden">
+    <div class="modal-content" style="max-width: 500px;">
+      <button id="close-stats" class="det-close" style="position:absolute; right:20px; top:20px;">✕</button>
+      <h2 style="color: var(--gold); font-family: 'Cinzel', serif; margin-bottom: 1.5rem; text-align: center;">📊 Recensement de la Forêt</h2>
+      <div id="stats-content"></div>
+    </div>
+  </div>
 
   <div id="compat-modal" class="modal-hidden">
     <div class="modal-content" style="max-width: 450px; text-align: center;">
@@ -94,7 +108,6 @@
     <div class="modal-content" style="max-width: 600px;">
       <button id="close-credits" class="det-close" style="position:absolute; right:20px; top:20px;">✕</button>
       <h2 style="color: var(--gold); font-family: 'Cinzel', serif; margin-bottom: 1.5rem; text-align: center;">📜 Crédits & Staffs</h2>
-      
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
         <div>
           <h4 style="color: var(--gold); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">🎨 Galerie Artistique</h4>
@@ -103,11 +116,10 @@
             <li><strong>@Artiste1</strong></li>
             <li><strong>@Artiste2</strong>, <strong>@Artiste3</strong></li>
           </ul>
-          <p style="font-size: 10px; color: var(--text-faint); margin-top: 10px;">Avatars PNJ : <a href="https://cgen-tools.github.io/pixel-cat-maker/" target="_blank" style="color:var(--gold);">Pixel Cat Maker</a></p>
         </div>
         <div>
           <h4 style="color: var(--gold); font-size: 12px; text-transform: uppercase; margin-bottom: 8px;">📂 Gestion des PNJ</h4>
-          <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 8px;">Gestion du registre (Google Sheet) :</p>
+          <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 8px;">Gestion du registre par :</p>
           <ul style="list-style: none; font-size: 11px; color: var(--text);">
             <li><strong>@l0ops_.</strong></li>
             <li><strong>@Staff_2</strong></li>
@@ -115,9 +127,6 @@
           <h4 style="color: var(--gold); font-size: 12px; text-transform: uppercase; margin-top: 20px; margin-bottom: 8px;">✨ Développement</h4>
           <p style="font-size: 11px; color: var(--text);">Code et intégration par <strong>@.araxia.</strong></p>
         </div>
-      </div>
-      <div style="text-align: center; margin-top: 30px; font-size: 9px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 2px;">
-        ⸺ Puisse le Clan des Étoiles éclairer votre chemin ⸺
       </div>
     </div>
   </div>
@@ -133,14 +142,8 @@
     domestique:  { label: 'Domestique',               color: '#e6a8d7' },
   };
 
-  const RANKS = {
-    chef: 'Chef', lieutenant: 'Lieutenant', medecin: 'Médecin du clan', app_medecin: 'Apprenti médecin',
-    guerrier: 'Guerrier', apprenti: 'Apprenti', ancien: 'Ancien', chaton: 'Chaton', solitaire: 'Solitaire'
-  };
-
-  const STATUTS = {
-    vivant: { label: 'Vivant', cls: 'st-vivant' }, mort: { label: 'Mort', cls: 'st-mort' }, disparu: { label: 'Disparu', cls: 'st-disparu' }
-  };
+  const RANKS = { chef: 'Chef', lieutenant: 'Lieutenant', medecin: 'Médecin du clan', app_medecin: 'Apprenti médecin', guerrier: 'Guerrier', apprenti: 'Apprenti', ancien: 'Ancien', chaton: 'Chaton', solitaire: 'Solitaire' };
+  const STATUTS = { vivant: { label: 'Vivant', cls: 'st-vivant' }, mort: { label: 'Mort', cls: 'st-mort' }, disparu: { label: 'Disparu', cls: 'st-disparu' } };
 
   const CW = 118, CH = 128, CS = 138, RS = 196;   
 
@@ -148,9 +151,7 @@
   let renderedChars = [], renderedMap = {};
   let mapW = 0, mapH = 0, offsetX = 0, offsetY = 0;
   
-  // --- NOUVEAU : LA CARTE DE COMPRESSION SPATIALE ---
   let colMapping = {};
-
   const bloodlinesCache = {};
 
   function getBloodline(cat) {
@@ -181,24 +182,19 @@
     return gradient + stops.join(', ') + ')';
   }
 
-  // --- COMPRESSION SPATIALE DES COLONNES ---
   function computeCompressedCols(chars) {
     let uniqueCols = [...new Set(chars.map(c => c.col))].sort((a,b) => a - b);
     colMapping = {};
     if(uniqueCols.length === 0) return;
-    
     colMapping[uniqueCols[0]] = uniqueCols[0];
     for(let i = 1; i < uniqueCols.length; i++) {
       let diff = uniqueCols[i] - uniqueCols[i-1];
-      // MAGIE : Si le vide entre deux familles est plus grand que 6 colonnes, on le réduit à 6 ! 
-      // Fini les trous de 500 colonnes qui font planter le site !
       if(diff > 6) diff = 6; 
       colMapping[uniqueCols[i]] = colMapping[uniqueCols[i-1]] + diff;
     }
   }
 
   const getMappedCol = col => colMapping[col] !== undefined ? colMapping[col] : col;
-
   const cardLeft = c => (getMappedCol(c.col) * CS) - offsetX;
   const cardTop  = c => (c.gen * RS) - offsetY;
   const cardCx   = c => (getMappedCol(c.col) * CS + CW / 2) - offsetX;
@@ -249,21 +245,33 @@
 
   function renderCards(chars) {
     const wrap = document.getElementById('tree-wrap'); wrap.querySelectorAll('.char-card').forEach(el => el.remove());
-    
+    wrap.style.width = '100%'; wrap.style.height = '100%';
+    const svg = document.getElementById('lines-svg'); svg.style.width = '100%'; svg.style.height = '100%'; svg.removeAttribute('viewBox'); 
+
     chars.forEach(c => {
       const clanKey = c.clan ? c.clan.toLowerCase() : '', originKey = c.clan_origin ? c.clan_origin.toLowerCase() : '';
       const clan = CLANS[clanKey] || { label: c.clan, color: '#888' }, origin = originKey ? CLANS[originKey] : null, stat = STATUTS[c.status] || { label: c.status, cls: '' };
       
+      let isDim = false;
+      if (searchQuery !== '' && !c.name.toLowerCase().includes(searchQuery)) {
+        isDim = true;
+      }
+
+      if (selectedId) {
+        const sel = charMap[selectedId], cRels = [...(c.bio_parents||[]), ...(c.adopt_parents||[]), ...(c.bio_children||[]), ...(c.adopt_children||[]), ...(c.bio_mates||[]), ...(c.ex_mates||[])], selRels = [...(sel.bio_parents||[]), ...(sel.adopt_parents||[]), ...(sel.bio_children||[]), ...(sel.adopt_children||[]), ...(sel.bio_mates||[]), ...(sel.ex_mates||[])];
+        const isFamily = c.id === sel.id || selRels.includes(c.id) || cRels.includes(sel.id);
+        if (!isFamily) isDim = true; 
+      }
+
       const isSel = c.id === selectedId, rankLabel = RANKS[c.rank] || c.rank, avatarHTML = c.photo ? `<img src="${c.photo}" alt="${c.name}" />` : (c.emoji || '🐱');
       const div = document.createElement('div');
-      let classes = `char-card${isSel ? ' selected' : ''}`;
+      let classes = `char-card${isDim ? ' dimmed' : ''}${isSel ? ' selected' : ''}`;
       if (c.status === 'mort' || c.status === 'disparu') { if (c.afterlife === 'sombre') classes += ' sombre'; else classes += ' etoiles'; }
       
       div.className = classes; div.style.left = cardLeft(c) + 'px'; div.style.top = cardTop(c) + 'px'; div.dataset.id = c.id; div.addEventListener('click', () => selectChar(c.id));
       let playerBadge = c.player ? (c.player.toUpperCase() === 'PNJ' ? `<div class="card-player pnj">PNJ</div>` : `<div class="card-player joueur">${c.player}</div>`) : '';
       let designBadge = c.design_type === 'realiste' ? `<span title="Design Réaliste" style="margin-left: 4px; font-size: 10px;">🌿</span>` : (c.design_type === 'semi_realiste' ? `<span title="Design Semi-Réaliste" style="margin-left: 4px; font-size: 10px;">✨</span>` : '');
 
-      // --- BADGES DE HAUTS RANGS ---
       let rankIconHTML = '';
       if (c.rank === 'chef') rankIconHTML = `<div class="rank-icon rank-chef" title="Chef de Clan">👑</div>`;
       else if (c.rank === 'lieutenant') rankIconHTML = `<div class="rank-icon rank-lieutenant" title="Lieutenant">⭐</div>`;
@@ -291,12 +299,8 @@
       const btn = document.createElement('button'); btn.className = 'filter-btn' + (key === activeClan ? ' active' : ''); btn.dataset.clan = key;
       if (color) { btn.innerHTML = `<span class="clan-dot" style="background:${color};opacity:${key === 'riviere_anc' ? 0.6 : 1}"></span>${label}`; } else { btn.textContent = label; }
       btn.addEventListener('click', () => { 
-        activeClan = key; 
-        searchQuery = ''; 
-        document.getElementById('search-bar').value = '';
+        activeClan = key; searchQuery = ''; document.getElementById('search-bar').value = '';
         renderFilters(); renderAll(); 
-        
-        // Centrage automatique quand on ouvre la sous-page du clan
         if(renderedChars.length > 0) {
             window.pzInstance.zoom(0.4, { animate: true });
             setTimeout(() => centerOnCat(renderedChars[0]), 50);
@@ -372,33 +376,33 @@
      const targetX = cardCx(cat);
      const targetY = cardCy(cat);
      const outer = document.getElementById('tree-outer');
-     const wrap = document.getElementById('tree-wrap');
      
      const panelWidth = document.getElementById('detail-panel').classList.contains('visible') ? 380 : 0;
      const screenCenterX = (outer.clientWidth - panelWidth) / 2;
      const screenCenterY = outer.clientHeight / 2;
      
-     const panX = screenCenterX - (targetX * scale) - (wrap.offsetWidth/2 * (1 - scale));
-     const panY = screenCenterY - (targetY * scale) - (wrap.offsetHeight/2 * (1 - scale));
+     const panX = screenCenterX - (targetX * scale);
+     const panY = screenCenterY - (targetY * scale);
      
      window.pzInstance.pan(panX, panY, { animate: true });
   }
 
-  function selectChar(id) {
+  function selectChar(id, fromSearch = false) {
     if (id && activeClan !== 'all') {
        const cat = charMap[id];
        if (cat) {
           const clanKey = cat.clan ? cat.clan.toLowerCase() : '';
           const originKey = cat.clan_origin ? cat.clan_origin.toLowerCase() : '';
           if (clanKey !== activeClan && originKey !== activeClan) {
-             activeClan = 'all'; // Rouvre tout l'arbre si on clique sur un ex-partenaire d'un autre clan
+             activeClan = 'all'; 
              renderFilters();
           }
        }
     }
     selectedId = selectedId === id ? null : id;
     renderAll();
-    if (selectedId && renderedMap[selectedId]) {
+    
+    if (selectedId && renderedMap[selectedId] && fromSearch) {
       centerOnCat(renderedMap[selectedId]);
     }
   }
@@ -406,21 +410,16 @@
   function closeDetail() { selectedId = null; renderAll(); }
   window.selectChar = selectChar; window.closeDetail = closeDetail;
 
-  /* ── LE MOTEUR CENTRAL (Avec Compression Spatiale) ── */
   function renderAll() {
-    // 1. Filtrer les chats de la Sous-Page
     renderedChars = allChars.filter(c => {
       const clanKey = c.clan ? c.clan.toLowerCase() : '';
       const originKey = c.clan_origin ? c.clan_origin.toLowerCase() : '';
-      const matchClan = activeClan === 'all' || clanKey === activeClan || originKey === activeClan;
-      const matchSearch = c.name.toLowerCase().includes(searchQuery);
-      return matchClan && matchSearch;
+      return activeClan === 'all' || clanKey === activeClan || originKey === activeClan;
     });
 
     renderedMap = {};
     renderedChars.forEach(c => renderedMap[c.id] = c);
 
-    // 2. La magie opère : On supprime les vides immenses !
     computeCompressedCols(renderedChars);
 
     if (renderedChars.length > 0) {
@@ -429,7 +428,6 @@
       const minGen = Math.min(...renderedChars.map(c => c.gen));
       const maxGen = Math.max(...renderedChars.map(c => c.gen));
 
-      // On utilise les colonnes compressées pour réduire la taille globale
       offsetX = (getMappedCol(minColRaw) * CS) - 50; 
       offsetY = (minGen * RS) - 50;
       
@@ -438,16 +436,6 @@
     } else {
       offsetX = 0; offsetY = 0; mapW = 1000; mapH = 1000;
     }
-
-    const wrap = document.getElementById('tree-wrap');
-    wrap.style.width = mapW + 'px';
-    wrap.style.height = mapH + 'px';
-
-    const svg = document.getElementById('lines-svg');
-    svg.style.width = '1px';
-    svg.style.height = '1px';
-    svg.style.overflow = 'visible';
-    svg.removeAttribute('viewBox'); 
 
     renderCards(renderedChars);
     renderLines(renderedChars);
@@ -466,10 +454,9 @@
      const rect = document.getElementById('minimap-view'); if(!rect || !window.pzInstance || mapW === 0) return;
      const scale = window.pzInstance.getScale(), pan = window.pzInstance.getPan();
      const outer = document.getElementById('tree-outer');
-     const wrap = document.getElementById('tree-wrap');
      
-     const viewX = (-pan.x - (wrap.offsetWidth / 2)) / scale + (wrap.offsetWidth / 2);
-     const viewY = (-pan.y - (wrap.offsetHeight / 2)) / scale + (wrap.offsetHeight / 2);
+     const viewX = -pan.x / scale;
+     const viewY = -pan.y / scale;
      
      rect.setAttribute('x', viewX); 
      rect.setAttribute('y', viewY);
@@ -484,10 +471,9 @@
       const targetY = mapH * ((e.clientY - rect.top) / rect.height);
       const scale = window.pzInstance.getScale();
       const outer = document.getElementById('tree-outer');
-      const wrap = document.getElementById('tree-wrap');
       
-      const panX = (outer.clientWidth / 2) - (targetX * scale) - (wrap.offsetWidth/2 * (1 - scale));
-      const panY = (outer.clientHeight / 2) - (targetY * scale) - (wrap.offsetHeight/2 * (1 - scale));
+      const panX = (outer.clientWidth / 2) - (targetX * scale);
+      const panY = (outer.clientHeight / 2) - (targetY * scale);
       
       window.pzInstance.pan(panX, panY, { animate: true });
   });
@@ -508,18 +494,33 @@
       const elem = document.getElementById('tree-wrap');
       elem.style.transformOrigin = '0 0'; 
       
+      // LE CORRECTIF EST L'OPTION "canvas: true". Elle autorise le glissement n'importe où !
       const panzoomInstance = Panzoom(elem, { 
         maxScale: 2.5, 
         minScale: 0.05, 
         step: 0.15, 
-        startScale: 0.4 
+        startScale: 0.4,
+        canvas: true 
       });
       
-      elem.parentElement.addEventListener('wheel', panzoomInstance.zoomWithWheel);
+      // L'utilisation de la molette pour se déplacer naturellement
+      elem.parentElement.addEventListener('wheel', function(e) {
+        if (!e.ctrlKey && !e.metaKey) {
+          e.preventDefault();
+          const pan = window.pzInstance.getPan();
+          window.pzInstance.pan(pan.x - (e.deltaX * 1.5), pan.y - (e.deltaY * 1.5));
+        } else {
+          panzoomInstance.zoomWithWheel(e);
+        }
+      }, { passive: false });
+
       window.pzInstance = panzoomInstance; 
       elem.addEventListener('panzoomchange', updateMinimapView); 
       window.addEventListener('resize', updateMinimapView); 
       
+      document.getElementById('btn-zoom-in').addEventListener('click', () => window.pzInstance.zoomIn({ animate: true }));
+      document.getElementById('btn-zoom-out').addEventListener('click', () => window.pzInstance.zoomOut({ animate: true }));
+
       document.getElementById('reset-zoom').addEventListener('click', () => { 
           if (renderedChars.length > 0) {
               window.pzInstance.zoom(0.4, { animate: true });
@@ -534,7 +535,7 @@
       searchBar.addEventListener('input', (e) => {
         searchQuery = e.target.value.toLowerCase(); renderAll();
         const exactMatch = renderedChars.find(c => c.name.toLowerCase() === searchQuery);
-        if (exactMatch) { selectChar(exactMatch.id); searchBar.blur(); }
+        if (exactMatch) { selectChar(exactMatch.id, true); searchBar.blur(); }
       });
 
       if (renderedChars.length > 0) {
@@ -554,6 +555,32 @@
     setupModal('btn-compat', 'close-compat', 'compat-modal');
     setupModal('btn-hof', 'close-hof', 'hof-modal');
     setupModal('btn-credits', 'close-credits', 'credits-modal');
+    setupModal('btn-stats', 'close-stats', 'stats-modal');
+
+    document.getElementById('btn-stats').addEventListener('click', () => {
+      const vivants = allChars.filter(c => c.status === 'vivant');
+      const morts = allChars.filter(c => c.status === 'mort' || c.status === 'disparu');
+
+      let popClan = {};
+      vivants.forEach(c => {
+         const cl = c.clan ? c.clan.toLowerCase() : 'inconnu';
+         popClan[cl] = (popClan[cl] || 0) + 1;
+      });
+
+      let html = `<p style="text-align:center; font-size:14px; margin-bottom: 20px; color: var(--text);">La forêt abrite actuellement <strong>${vivants.length} félins vivants</strong> (et veille sur ${morts.length} âmes disparues).</p>`;
+      html += `<div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">`;
+      
+      const sortedClans = Object.entries(popClan).sort((a,b) => b[1] - a[1]);
+      for(const [cl, count] of sortedClans) {
+         const clanData = CLANS[cl] || {label: cl, color: '#888'};
+         html += `<div style="background:rgba(0,0,0,0.3); padding:12px; border-left: 4px solid ${clanData.color}; border-radius: 4px;">
+            <div style="font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing: 1px;">${clanData.label}</div>
+            <div style="font-size:18px; font-weight:bold; color:var(--gold); margin-top: 4px;">${count} chats</div>
+         </div>`;
+      }
+      html += `</div>`;
+      document.getElementById('stats-content').innerHTML = html;
+    });
 
     document.getElementById('btn-photo').addEventListener('click', () => document.body.classList.add('photo-mode'));
     document.getElementById('btn-exit-photo').addEventListener('click', () => document.body.classList.remove('photo-mode'));
