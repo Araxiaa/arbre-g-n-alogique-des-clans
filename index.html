@@ -334,25 +334,26 @@
     panel.classList.add('visible');
   }
 
-  /* ── CAMERA DRONE : LE CENTRAGE ULTIME ── */
+  /* ── LA NOUVELLE CAMÉRA : CADENASSÉE & INFAILLIBLE ── */
   function centerOnCat(cat) {
      if(!window.pzInstance) return;
      const scale = window.pzInstance.getScale();
+     
+     // Coordonnées absolues du chat
      const targetX = cardCx(cat);
      const targetY = cardCy(cat);
      
      const outer = document.getElementById('tree-outer');
-     const wrap = document.getElementById('tree-wrap');
-     const W = wrap.clientWidth;
-     const H = wrap.clientHeight;
-     
+     // Si la fiche est ouverte, on retire 380px de largeur d'écran pour bien centrer le chat sur la gauche
      const panelWidth = document.getElementById('detail-panel').classList.contains('visible') ? 380 : 0;
+     
+     // Calcul du centre parfait de l'écran (partie visible)
      const screenCenterX = (outer.clientWidth - panelWidth) / 2;
      const screenCenterY = outer.clientHeight / 2;
      
-     // Mathématiques de précision pour Panzoom avec point d'origine 0 0
-     const panX = screenCenterX - (targetX * scale) - (W/2 * (1 - scale));
-     const panY = screenCenterY - (targetY * scale) - (H/2 * (1 - scale));
+     // Le calcul absolu de la caméra : Centre de l'écran MOINS (Position du chat * niveau de zoom)
+     const panX = screenCenterX - (targetX * scale);
+     const panY = screenCenterY - (targetY * scale);
      
      window.pzInstance.pan(panX, panY, { animate: true });
   }
@@ -379,17 +380,14 @@
     circles += `<rect id="minimap-view" x="0" y="0" width="100" height="100"></rect>`; mSvg.innerHTML = circles; updateMinimapView();
   }
 
+  // Calcul inversé de la position de la caméra pour le radar
   function updateMinimapView() {
      const rect = document.getElementById('minimap-view'); if(!rect || !window.pzInstance) return;
      const scale = window.pzInstance.getScale(), pan = window.pzInstance.getPan();
      const outer = document.getElementById('tree-outer');
-     const wrap = document.getElementById('tree-wrap');
-     const W = wrap.clientWidth;
-     const H = wrap.clientHeight;
      
-     // Position inverse sur le radar
-     const viewX = (-pan.x - (W/2 * (1 - scale))) / scale;
-     const viewY = (-pan.y - (H/2 * (1 - scale))) / scale;
+     const viewX = -pan.x / scale;
+     const viewY = -pan.y / scale;
      
      rect.setAttribute('x', viewX); 
      rect.setAttribute('y', viewY);
@@ -397,6 +395,7 @@
      rect.setAttribute('height', outer.clientHeight / scale);
   }
 
+  // Téléportation via le clic sur la mini-carte
   document.getElementById('minimap-container').addEventListener('click', (e) => {
       if (!window.pzInstance) return;
       const rect = e.currentTarget.getBoundingClientRect(), mSvg = document.getElementById('minimap-svg');
@@ -409,27 +408,18 @@
       
       const scale = window.pzInstance.getScale();
       const outer = document.getElementById('tree-outer');
-      const wrap = document.getElementById('tree-wrap');
-      const W = wrap.clientWidth;
-      const H = wrap.clientHeight;
       
-      const panX = (outer.clientWidth / 2) - (targetX * scale) - (W/2 * (1 - scale));
-      const panY = (outer.clientHeight / 2) - (targetY * scale) - (H/2 * (1 - scale));
+      const panX = (outer.clientWidth / 2) - (targetX * scale);
+      const panY = (outer.clientHeight / 2) - (targetY * scale);
       
       window.pzInstance.pan(panX, panY, { animate: true });
   });
 
-  //* ── INIT ── */
+  /* ── INIT ── */
   async function init() {
     try {
-      // On demande au site de chercher spécifiquement dans le dossier "data"
       const res = await fetch('data/characters.json');
-      
-      // Si l'ordinateur ne le trouve pas, il affiche cette erreur précise
-      if (!res.ok) {
-        throw new Error(`Erreur ${res.status} : Impossible de trouver le fichier dans le dossier "data".`);
-      }
-      
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
       allChars = data.characters || [];
@@ -439,12 +429,17 @@
       document.getElementById('tree-outer').style.display  = 'block';
 
       const elem = document.getElementById('tree-wrap');
+      
+      // LE CADENAS ! Force l'ordinateur à calculer les coordonnées depuis le coin en haut à gauche
+      elem.style.transformOrigin = '0 0'; 
+      
       const panzoomInstance = Panzoom(elem, { 
         maxScale: 2.5, 
         minScale: 0.1, 
         step: 0.15, 
         startScale: 0.4 
       });
+      
       elem.parentElement.addEventListener('wheel', panzoomInstance.zoomWithWheel);
       window.pzInstance = panzoomInstance; 
       elem.addEventListener('panzoomchange', updateMinimapView); 
@@ -467,6 +462,7 @@
         if (exactMatch) { selectChar(exactMatch.id); searchBar.blur(); }
       });
 
+      // Démarrage : Centrage fluide sur le tout premier chat
       if (allChars.length > 0) {
           setTimeout(() => {
               centerOnCat(allChars[0]); 
