@@ -3,7 +3,7 @@
     "title": "La Guerre des Clans",
     "description": "Arbre généalogique du serveur RP",
     "version": "1.0",
-    "exported_at": "2026-05-15T16:42:02.715Z"
+    "exported_at": "2026-05-15T16:58:02.862Z"
   },
   "characters": [
     {
@@ -241,12 +241,12 @@
       "name": "Eclat d'Ocre",
       "rank": "guerrier",
       "clan": "ombre",
-      "clan_origin": "",
+      "clan_origin": "riviere_anc",
       "status": "vivant",
       "afterlife": "",
       "gen": 2,
       "col": 70,
-      "bio_parents": [],
+      "bio_parents": [16, 17],
       "bio_mates": [],
       "ex_mates": [10],
       "bio_children": [12, 13, 14],
@@ -364,7 +364,7 @@
       "bio_parents": [],
       "bio_mates": [],
       "ex_mates": [15, 17],
-      "bio_children": [18, 19, 20, 25, 26],
+      "bio_children": [11, 18, 19, 20, 25, 26],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -387,7 +387,7 @@
       "bio_parents": [],
       "bio_mates": [],
       "ex_mates": [16],
-      "bio_children": [18, 19, 20],
+      "bio_children": [11, 18, 19, 20],
       "adopt_parents": [],
       "adopt_children": [],
       "mentor": null,
@@ -395,7 +395,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Résilience du Galet - PNJ.png"
     },
     {
       "id": 18,
@@ -418,7 +418,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Belle des Rives"
     },
     {
       "id": 19,
@@ -464,7 +464,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Fierté de la Loutre - PNJ.png"
     },
     {
       "id": 21,
@@ -533,7 +533,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Bolet Moussu - PNJ.png"
     },
     {
       "id": 24,
@@ -556,7 +556,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photosNuage de Vandoise - PNJ.png"
     },
     {
       "id": 25,
@@ -2074,7 +2074,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Sérénité de Clématite - PNJ.png"
     },
     {
       "id": 91,
@@ -2097,7 +2097,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Pic Rocheux - PNJ.png"
     },
     {
       "id": 92,
@@ -2120,7 +2120,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Brume de Sureau - PNJ.png"
     },
     {
       "id": 93,
@@ -2143,7 +2143,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Pas de Furet - PNJ.png"
     },
     {
       "id": 94,
@@ -2166,7 +2166,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Coeur de Girolle - PNJ.png"
     },
     {
       "id": 95,
@@ -2189,7 +2189,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Petite Morille - PNJ.png"
     },
     {
       "id": 96,
@@ -2212,11 +2212,11 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Brise de Bruyère - PNJ.png"
     },
     {
       "id": 97,
-      "name": "Aile d'Alouette",
+      "name": "Ailes d'Alouette",
       "rank": "guerrier",
       "clan": "vent",
       "clan_origin": "",
@@ -2235,7 +2235,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Ailes d'Alouette - PNJ.png"
     },
     {
       "id": 98,
@@ -2258,7 +2258,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Lueur d'Avoine - PNJ.png"
     },
     {
       "id": 99,
@@ -2281,7 +2281,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Petite Caille - PNJ.png"
     },
     {
       "id": 100,
@@ -2304,7 +2304,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Lierre Grimpant - PNJ.png"
     },
     {
       "id": 101,
@@ -2327,7 +2327,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Clycine Nimbée - PNJ.png"
     },
     {
       "id": 102,
@@ -2350,7 +2350,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Pas de Givre - PNJ.png"
     },
     {
       "id": 103,
@@ -2373,7 +2373,7 @@
       "player": "PNJ",
       "design_type": "realiste",
       "notes": "",
-      "photo": ""
+      "photo": "assets/photos/Epine de Châtaigne - PNJ.png"
     }
   ]
 }
