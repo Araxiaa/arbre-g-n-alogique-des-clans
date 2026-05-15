@@ -144,11 +144,13 @@
 
   const CW = 118, CH = 128, CS = 138, RS = 196;   
 
-  // --- NOUVEAU : VARIABLES GLOBALES ABSOLUES ---
-  let mapW = 0; 
-  let mapH = 0;
-  
   let allChars = [], charMap = {}, activeClan = 'all', selectedId = null, searchQuery = '';
+  let renderedChars = [], renderedMap = {};
+  let mapW = 0, mapH = 0, offsetX = 0, offsetY = 0;
+  
+  // --- NOUVEAU : LA CARTE DE COMPRESSION SPATIALE ---
+  let colMapping = {};
+
   const bloodlinesCache = {};
 
   function getBloodline(cat) {
@@ -159,11 +161,9 @@
       const clanBase = cat.clan_origin ? cat.clan_origin.toLowerCase() : (cat.clan ? cat.clan.toLowerCase() : 'sans_clan');
       mix[clanBase] = 100;
     } else {
-      const p1 = charMap[cat.bio_parents[0]];
-      const p2 = cat.bio_parents.length > 1 ? charMap[cat.bio_parents[1]] : null;
+      const p1 = charMap[cat.bio_parents[0]], p2 = cat.bio_parents.length > 1 ? charMap[cat.bio_parents[1]] : null;
       const defaultClan = cat.clan_origin ? cat.clan_origin.toLowerCase() : (cat.clan ? cat.clan.toLowerCase() : 'sans_clan');
-      const blood1 = p1 ? getBloodline(p1) : { [defaultClan]: 100 };
-      const blood2 = p2 ? getBloodline(p2) : { [defaultClan]: 100 };
+      const blood1 = p1 ? getBloodline(p1) : { [defaultClan]: 100 }, blood2 = p2 ? getBloodline(p2) : { [defaultClan]: 100 };
       for (const [cl, val] of Object.entries(blood1)) mix[cl] = (mix[cl] || 0) + val / 2;
       for (const [cl, val] of Object.entries(blood2)) mix[cl] = (mix[cl] || 0) + val / 2;
     }
@@ -181,7 +181,28 @@
     return gradient + stops.join(', ') + ')';
   }
 
-  const cardLeft = c => c.col * CS, cardTop = c => c.gen * RS, cardCx = c => c.col * CS + CW / 2, cardCy = c => c.gen * RS + CH / 2;
+  // --- COMPRESSION SPATIALE DES COLONNES ---
+  function computeCompressedCols(chars) {
+    let uniqueCols = [...new Set(chars.map(c => c.col))].sort((a,b) => a - b);
+    colMapping = {};
+    if(uniqueCols.length === 0) return;
+    
+    colMapping[uniqueCols[0]] = uniqueCols[0];
+    for(let i = 1; i < uniqueCols.length; i++) {
+      let diff = uniqueCols[i] - uniqueCols[i-1];
+      // MAGIE : Si le vide entre deux familles est plus grand que 6 colonnes, on le réduit à 6 ! 
+      // Fini les trous de 500 colonnes qui font planter le site !
+      if(diff > 6) diff = 6; 
+      colMapping[uniqueCols[i]] = colMapping[uniqueCols[i-1]] + diff;
+    }
+  }
+
+  const getMappedCol = col => colMapping[col] !== undefined ? colMapping[col] : col;
+
+  const cardLeft = c => (getMappedCol(c.col) * CS) - offsetX;
+  const cardTop  = c => (c.gen * RS) - offsetY;
+  const cardCx   = c => (getMappedCol(c.col) * CS + CW / 2) - offsetX;
+  const cardCy   = c => (c.gen * RS + CH / 2) - offsetY;
 
   function getMatePairs(chars) {
     const seen = new Set(), pairs = [];
@@ -204,19 +225,21 @@
   function renderLines(chars) {
     const svg = document.getElementById('lines-svg'), sc = 'rgba(180,160,100,0.45)'; let s = '';
     const ln = (x1, y1, x2, y2, dash = '') => `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" style="stroke:${sc};stroke-width:1.5;fill:none" ${dash}/>`;
+    
     getMatePairs(chars).forEach(({ a, b, type }) => {
-      const ca = charMap[a], cb = charMap[b]; if (!ca || !cb) return;
+      const ca = renderedMap[a], cb = renderedMap[b]; if (!ca || !cb) return;
       const leftC = cardCx(ca) < cardCx(cb) ? ca : cb, rightC = cardCx(ca) < cardCx(cb) ? cb : ca;
-      const y = cardCy(leftC), x1 = leftC.col * CS + CW, x2 = rightC.col * CS; if (x1 >= x2) return; 
+      const y = cardCy(leftC), x1 = cardLeft(leftC) + CW, x2 = cardLeft(rightC); if (x1 >= x2) return; 
       const mx = ((x1 + x2) / 2).toFixed(1);
       if (type === 'current') { s += ln(x1, y, x2, y); s += `<text x="${mx}" y="${(y + 4).toFixed(1)}" text-anchor="middle" style="font-size:9px;fill:${sc};font-family:sans-serif">♥</text>`; } 
       else { s += ln(x1, y, x2, y, 'stroke-dasharray="4 4" opacity="0.6"'); s += `<text x="${mx}" y="${(y + 4).toFixed(1)}" text-anchor="middle" style="font-size:9px;fill:${sc};font-family:sans-serif;opacity:0.6">💔</text>`; }
     });
+    
     getFamilyUnits(chars).forEach(unit => {
-      const pcs = unit.parents.map(id => charMap[id]).filter(Boolean), ccs = unit.children.map(id => charMap[id]).filter(Boolean);
+      const pcs = unit.parents.map(id => renderedMap[id]).filter(Boolean), ccs = unit.children.map(id => renderedMap[id]).filter(Boolean);
       if (!pcs.length || !ccs.length) return;
       const dash = unit.adoptive ? 'stroke-dasharray="8 5"' : '', coupleX = pcs.reduce((sum, c) => sum + cardCx(c), 0) / pcs.length;
-      const startY = pcs.length > 1 ? cardCy(pcs[0]) : cardTop(pcs[0]) + CH, childRow = Math.min(...ccs.map(c => c.gen)), barY = childRow * RS - 32;
+      const startY = pcs.length > 1 ? cardCy(pcs[0]) : cardTop(pcs[0]) + CH, childRow = Math.min(...ccs.map(c => c.gen)), barY = (childRow * RS - offsetY) - 32;
       const minCX = Math.min(...ccs.map(c => cardCx(c))), maxCX = Math.max(...ccs.map(c => cardCx(c))), bMin = Math.min(coupleX, minCX), bMax = Math.max(coupleX, maxCX);
       s += ln(coupleX, startY, coupleX, barY, dash); if (bMin < bMax) s += ln(bMin, barY, bMax, barY, dash);
       ccs.forEach(c => s += ln(cardCx(c), barY, cardCx(c), cardTop(c), dash));
@@ -227,41 +250,27 @@
   function renderCards(chars) {
     const wrap = document.getElementById('tree-wrap'); wrap.querySelectorAll('.char-card').forEach(el => el.remove());
     
-    // NOUVEAU : Enregistrement des dimensions absolues de l'arbre
-    const maxCol = chars.length > 0 ? Math.max(...chars.map(c => c.col)) : 10;
-    const maxGen = chars.length > 0 ? Math.max(...chars.map(c => c.gen)) : 10;
-    mapW = Math.ceil(maxCol * CS + CW + 20);
-    mapH = Math.ceil(maxGen * RS + CH + 50);
-    
-    wrap.style.width = mapW + 'px'; 
-    wrap.style.height = mapH + 'px';
-    
-    const svg = document.getElementById('lines-svg'); 
-    svg.setAttribute('width', mapW); 
-    svg.setAttribute('height', mapH); 
-    svg.setAttribute('viewBox', `0 0 ${mapW} ${mapH}`);
-
     chars.forEach(c => {
       const clanKey = c.clan ? c.clan.toLowerCase() : '', originKey = c.clan_origin ? c.clan_origin.toLowerCase() : '';
       const clan = CLANS[clanKey] || { label: c.clan, color: '#888' }, origin = originKey ? CLANS[originKey] : null, stat = STATUTS[c.status] || { label: c.status, cls: '' };
       
-      let matchClan = activeClan === 'all' || clanKey === activeClan || originKey === activeClan, matchSearch = c.name.toLowerCase().includes(searchQuery), isDim = !matchClan || !matchSearch;
-      if (selectedId) {
-        const sel = charMap[selectedId], cRels = [...(c.bio_parents||[]), ...(c.adopt_parents||[]), ...(c.bio_children||[]), ...(c.adopt_children||[]), ...(c.bio_mates||[]), ...(c.ex_mates||[])], selRels = [...(sel.bio_parents||[]), ...(sel.adopt_parents||[]), ...(sel.bio_children||[]), ...(sel.adopt_children||[]), ...(sel.bio_mates||[]), ...(sel.ex_mates||[])];
-        const isFamily = c.id === sel.id || selRels.includes(c.id) || cRels.includes(sel.id);
-        if (!isFamily) isDim = true; 
-      }
-
       const isSel = c.id === selectedId, rankLabel = RANKS[c.rank] || c.rank, avatarHTML = c.photo ? `<img src="${c.photo}" alt="${c.name}" />` : (c.emoji || '🐱');
       const div = document.createElement('div');
-      let classes = `char-card${isDim ? ' dimmed' : ''}${isSel ? ' selected' : ''}`;
+      let classes = `char-card${isSel ? ' selected' : ''}`;
       if (c.status === 'mort' || c.status === 'disparu') { if (c.afterlife === 'sombre') classes += ' sombre'; else classes += ' etoiles'; }
       
       div.className = classes; div.style.left = cardLeft(c) + 'px'; div.style.top = cardTop(c) + 'px'; div.dataset.id = c.id; div.addEventListener('click', () => selectChar(c.id));
       let playerBadge = c.player ? (c.player.toUpperCase() === 'PNJ' ? `<div class="card-player pnj">PNJ</div>` : `<div class="card-player joueur">${c.player}</div>`) : '';
       let designBadge = c.design_type === 'realiste' ? `<span title="Design Réaliste" style="margin-left: 4px; font-size: 10px;">🌿</span>` : (c.design_type === 'semi_realiste' ? `<span title="Design Semi-Réaliste" style="margin-left: 4px; font-size: 10px;">✨</span>` : '');
 
+      // --- BADGES DE HAUTS RANGS ---
+      let rankIconHTML = '';
+      if (c.rank === 'chef') rankIconHTML = `<div class="rank-icon rank-chef" title="Chef de Clan">👑</div>`;
+      else if (c.rank === 'lieutenant') rankIconHTML = `<div class="rank-icon rank-lieutenant" title="Lieutenant">⭐</div>`;
+      else if (c.rank === 'medecin') rankIconHTML = `<div class="rank-icon rank-medecin" title="Médecin">🌿</div>`;
+
       div.innerHTML = `
+        ${rankIconHTML}
         <div class="card-badges"><div class="clan-badge" style="background:${clan.color}" title="${clan.label}"></div>${origin ? `<div class="clan-badge origin" style="background:${origin.color}" title="${origin.label} (origine)"></div>` : ''}</div>
         <div class="card-avatar" style="border-color:${clan.color}50">${avatarHTML}</div>
         <div class="card-name">${c.name}${designBadge}</div>
@@ -272,18 +281,27 @@
       `;
       wrap.appendChild(div);
     });
-    
-    renderMinimap(); 
   }
 
   function renderFilters() {
     const container = document.getElementById('filters');
-    const entries = [['all', 'Tous les clans', null], ...Object.entries(CLANS).map(([k, v]) => [k, v.label, v.color])];
+    const entries = [['all', 'Tous les félins (Arbre Complet)', null], ...Object.entries(CLANS).map(([k, v]) => [k, v.label, v.color])];
     container.innerHTML = '';
     entries.forEach(([key, label, color]) => {
       const btn = document.createElement('button'); btn.className = 'filter-btn' + (key === activeClan ? ' active' : ''); btn.dataset.clan = key;
       if (color) { btn.innerHTML = `<span class="clan-dot" style="background:${color};opacity:${key === 'riviere_anc' ? 0.6 : 1}"></span>${label}`; } else { btn.textContent = label; }
-      btn.addEventListener('click', () => { activeClan = key; renderFilters(); renderAll(); });
+      btn.addEventListener('click', () => { 
+        activeClan = key; 
+        searchQuery = ''; 
+        document.getElementById('search-bar').value = '';
+        renderFilters(); renderAll(); 
+        
+        // Centrage automatique quand on ouvre la sous-page du clan
+        if(renderedChars.length > 0) {
+            window.pzInstance.zoom(0.4, { animate: true });
+            setTimeout(() => centerOnCat(renderedChars[0]), 50);
+        }
+      });
       container.appendChild(btn);
     });
   }
@@ -304,7 +322,7 @@
     const clan = CLANS[clanKey] || { label: c.clan, color: '#888' }, origin = originKey ? CLANS[originKey] : null;
     const stat = STATUTS[c.status] || { label: c.status, cls: '' }, rank = RANKS[c.rank] || c.rank;
 
-    const chips = (ids, isAdopt = false) => (ids || []).map(id => { const ch = charMap[id]; return ch ? `<span class="fchip" onclick="selectChar('${id}')">${ch.name}${isAdopt ? '<span class="adopt-tag">adopt.</span>' : ''}</span>` : ''; }).join('');
+    const chips = (ids, isAdopt = false) => (ids || []).map(id => { const ch = charMap[id]; return ch ? `<span class="fchip" onclick="selectChar(${id})">${ch.name}${isAdopt ? '<span class="adopt-tag">adopt.</span>' : ''}</span>` : ''; }).join('');
     const avatarContent = c.photo ? `<img src="${c.photo}" alt="${c.name}" />` : (c.emoji || '🐱');
 
     let rows = `
@@ -348,45 +366,99 @@
     panel.classList.add('visible');
   }
 
-  /* ── NOUVELLE CAMERA : BULLETPROOF ── */
   function centerOnCat(cat) {
      if(!window.pzInstance || mapW === 0) return;
      const scale = window.pzInstance.getScale();
-     
      const targetX = cardCx(cat);
      const targetY = cardCy(cat);
-     
      const outer = document.getElementById('tree-outer');
+     const wrap = document.getElementById('tree-wrap');
+     
      const panelWidth = document.getElementById('detail-panel').classList.contains('visible') ? 380 : 0;
      const screenCenterX = (outer.clientWidth - panelWidth) / 2;
      const screenCenterY = outer.clientHeight / 2;
      
-     // Formule utilisant les variables globales fixes
-     const panX = screenCenterX - (mapW / 2) - (targetX - (mapW / 2)) * scale;
-     const panY = screenCenterY - (mapH / 2) - (targetY - (mapH / 2)) * scale;
+     const panX = screenCenterX - (targetX * scale) - (wrap.offsetWidth/2 * (1 - scale));
+     const panY = screenCenterY - (targetY * scale) - (wrap.offsetHeight/2 * (1 - scale));
      
      window.pzInstance.pan(panX, panY, { animate: true });
   }
 
   function selectChar(id) {
+    if (id && activeClan !== 'all') {
+       const cat = charMap[id];
+       if (cat) {
+          const clanKey = cat.clan ? cat.clan.toLowerCase() : '';
+          const originKey = cat.clan_origin ? cat.clan_origin.toLowerCase() : '';
+          if (clanKey !== activeClan && originKey !== activeClan) {
+             activeClan = 'all'; // Rouvre tout l'arbre si on clique sur un ex-partenaire d'un autre clan
+             renderFilters();
+          }
+       }
+    }
     selectedId = selectedId === id ? null : id;
     renderAll();
-    if (selectedId) {
-      const c = charMap[selectedId];
-      if (c) centerOnCat(c);
+    if (selectedId && renderedMap[selectedId]) {
+      centerOnCat(renderedMap[selectedId]);
     }
   }
 
   function closeDetail() { selectedId = null; renderAll(); }
   window.selectChar = selectChar; window.closeDetail = closeDetail;
 
-  function renderAll() { renderCards(allChars); renderLines(allChars); renderDetail(); }
+  /* ── LE MOTEUR CENTRAL (Avec Compression Spatiale) ── */
+  function renderAll() {
+    // 1. Filtrer les chats de la Sous-Page
+    renderedChars = allChars.filter(c => {
+      const clanKey = c.clan ? c.clan.toLowerCase() : '';
+      const originKey = c.clan_origin ? c.clan_origin.toLowerCase() : '';
+      const matchClan = activeClan === 'all' || clanKey === activeClan || originKey === activeClan;
+      const matchSearch = c.name.toLowerCase().includes(searchQuery);
+      return matchClan && matchSearch;
+    });
 
-  /* ── MINI-MAP (RADAR) CORRIGÉE ── */
+    renderedMap = {};
+    renderedChars.forEach(c => renderedMap[c.id] = c);
+
+    // 2. La magie opère : On supprime les vides immenses !
+    computeCompressedCols(renderedChars);
+
+    if (renderedChars.length > 0) {
+      const minColRaw = Math.min(...renderedChars.map(c => c.col));
+      const maxColRaw = Math.max(...renderedChars.map(c => c.col));
+      const minGen = Math.min(...renderedChars.map(c => c.gen));
+      const maxGen = Math.max(...renderedChars.map(c => c.gen));
+
+      // On utilise les colonnes compressées pour réduire la taille globale
+      offsetX = (getMappedCol(minColRaw) * CS) - 50; 
+      offsetY = (minGen * RS) - 50;
+      
+      mapW = (getMappedCol(maxColRaw) - getMappedCol(minColRaw)) * CS + CW + 100;
+      mapH = (maxGen - minGen) * RS + CH + 100;
+    } else {
+      offsetX = 0; offsetY = 0; mapW = 1000; mapH = 1000;
+    }
+
+    const wrap = document.getElementById('tree-wrap');
+    wrap.style.width = mapW + 'px';
+    wrap.style.height = mapH + 'px';
+
+    const svg = document.getElementById('lines-svg');
+    svg.style.width = '1px';
+    svg.style.height = '1px';
+    svg.style.overflow = 'visible';
+    svg.removeAttribute('viewBox'); 
+
+    renderCards(renderedChars);
+    renderLines(renderedChars);
+    renderMinimap();
+    renderDetail();
+  }
+
   function renderMinimap() {
     const mSvg = document.getElementById('minimap-svg'); if (!mSvg || mapW === 0) return;
     mSvg.setAttribute('viewBox', `0 0 ${mapW} ${mapH}`); let circles = '';
-    allChars.forEach(c => { const clan = CLANS[c.clan ? c.clan.toLowerCase() : ''] || { color: '#888' }; circles += `<circle cx="${cardCx(c)}" cy="${cardCy(c)}" r="30" fill="${clan.color}" opacity="0.8" />`; });
+    renderedChars.forEach(c => { const clan = CLANS[c.clan ? c.clan.toLowerCase() : ''] || { color: '#888' }; circles += `<circle cx="${cardCx(c)}" cy="${cardCy(c)}" r="30" fill="${clan.color}" opacity="0.8" />`; });
     circles += `<rect id="minimap-view" x="0" y="0" width="100" height="100"></rect>`; mSvg.innerHTML = circles; updateMinimapView();
   }
 
@@ -394,9 +466,10 @@
      const rect = document.getElementById('minimap-view'); if(!rect || !window.pzInstance || mapW === 0) return;
      const scale = window.pzInstance.getScale(), pan = window.pzInstance.getPan();
      const outer = document.getElementById('tree-outer');
+     const wrap = document.getElementById('tree-wrap');
      
-     const viewX = (-pan.x - (mapW / 2)) / scale + (mapW / 2);
-     const viewY = (-pan.y - (mapH / 2)) / scale + (mapH / 2);
+     const viewX = (-pan.x - (wrap.offsetWidth / 2)) / scale + (wrap.offsetWidth / 2);
+     const viewY = (-pan.y - (wrap.offsetHeight / 2)) / scale + (wrap.offsetHeight / 2);
      
      rect.setAttribute('x', viewX); 
      rect.setAttribute('y', viewY);
@@ -407,15 +480,14 @@
   document.getElementById('minimap-container').addEventListener('click', (e) => {
       if (!window.pzInstance || mapW === 0) return;
       const rect = e.currentTarget.getBoundingClientRect();
-      
       const targetX = mapW * ((e.clientX - rect.left) / rect.width);
       const targetY = mapH * ((e.clientY - rect.top) / rect.height);
-      
       const scale = window.pzInstance.getScale();
       const outer = document.getElementById('tree-outer');
+      const wrap = document.getElementById('tree-wrap');
       
-      const panX = (outer.clientWidth / 2) - (mapW / 2) - (targetX - (mapW / 2)) * scale;
-      const panY = (outer.clientHeight / 2) - (mapH / 2) - (targetY - (mapH / 2)) * scale;
+      const panX = (outer.clientWidth / 2) - (targetX * scale) - (wrap.offsetWidth/2 * (1 - scale));
+      const panY = (outer.clientHeight / 2) - (targetY * scale) - (wrap.offsetHeight/2 * (1 - scale));
       
       window.pzInstance.pan(panX, panY, { animate: true });
   });
@@ -434,10 +506,11 @@
       document.getElementById('tree-outer').style.display  = 'block';
 
       const elem = document.getElementById('tree-wrap');
+      elem.style.transformOrigin = '0 0'; 
       
       const panzoomInstance = Panzoom(elem, { 
         maxScale: 2.5, 
-        minScale: 0.1, 
+        minScale: 0.05, 
         step: 0.15, 
         startScale: 0.4 
       });
@@ -448,9 +521,9 @@
       window.addEventListener('resize', updateMinimapView); 
       
       document.getElementById('reset-zoom').addEventListener('click', () => { 
-          if (allChars.length > 0) {
+          if (renderedChars.length > 0) {
               window.pzInstance.zoom(0.4, { animate: true });
-              centerOnCat(allChars[0]); 
+              centerOnCat(renderedChars[0]); 
           }
       });
 
@@ -460,13 +533,13 @@
       if (datalist) { datalist.innerHTML = ''; [...allChars].sort((a,b) => a.name.localeCompare(b.name)).forEach(c => { datalist.innerHTML += `<option value="${c.name}">`; }); }
       searchBar.addEventListener('input', (e) => {
         searchQuery = e.target.value.toLowerCase(); renderAll();
-        const exactMatch = allChars.find(c => c.name.toLowerCase() === searchQuery);
+        const exactMatch = renderedChars.find(c => c.name.toLowerCase() === searchQuery);
         if (exactMatch) { selectChar(exactMatch.id); searchBar.blur(); }
       });
 
-      if (allChars.length > 0) {
+      if (renderedChars.length > 0) {
           setTimeout(() => {
-              centerOnCat(allChars[0]); 
+              centerOnCat(renderedChars[0]); 
           }, 50);
       }
 
