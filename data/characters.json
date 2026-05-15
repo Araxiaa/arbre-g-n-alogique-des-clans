@@ -3,7 +3,7 @@
     "title": "La Guerre des Clans",
     "description": "Arbre généalogique du serveur RP",
     "version": "1.0",
-    "exported_at": "2026-05-15T16:58:02.862Z"
+    "exported_at": "2026-05-15T17:01:46.555Z"
   },
   "characters": [
     {
@@ -517,7 +517,7 @@
       "name": "Bolet Moussu",
       "rank": "guerrier",
       "clan": "ombre",
-      "clan_origin": "",
+      "clan_origin": "solitaire",
       "status": "vivant",
       "afterlife": "",
       "gen": 1,
