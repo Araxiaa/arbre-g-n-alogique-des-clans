@@ -144,6 +144,10 @@
 
   const CW = 118, CH = 128, CS = 138, RS = 196;   
 
+  // --- NOUVEAU : VARIABLES GLOBALES ABSOLUES ---
+  let mapW = 0; 
+  let mapH = 0;
+  
   let allChars = [], charMap = {}, activeClan = 'all', selectedId = null, searchQuery = '';
   const bloodlinesCache = {};
 
@@ -222,10 +226,20 @@
 
   function renderCards(chars) {
     const wrap = document.getElementById('tree-wrap'); wrap.querySelectorAll('.char-card').forEach(el => el.remove());
-    const maxCol = Math.max(...chars.map(c => c.col)), maxGen = Math.max(...chars.map(c => c.gen));
-    const W = Math.ceil(maxCol * CS + CW + 20), H = Math.ceil(maxGen * RS + CH + 50);
-    wrap.style.width = W + 'px'; wrap.style.height = H + 'px';
-    const svg = document.getElementById('lines-svg'); svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    
+    // NOUVEAU : Enregistrement des dimensions absolues de l'arbre
+    const maxCol = chars.length > 0 ? Math.max(...chars.map(c => c.col)) : 10;
+    const maxGen = chars.length > 0 ? Math.max(...chars.map(c => c.gen)) : 10;
+    mapW = Math.ceil(maxCol * CS + CW + 20);
+    mapH = Math.ceil(maxGen * RS + CH + 50);
+    
+    wrap.style.width = mapW + 'px'; 
+    wrap.style.height = mapH + 'px';
+    
+    const svg = document.getElementById('lines-svg'); 
+    svg.setAttribute('width', mapW); 
+    svg.setAttribute('height', mapH); 
+    svg.setAttribute('viewBox', `0 0 ${mapW} ${mapH}`);
 
     chars.forEach(c => {
       const clanKey = c.clan ? c.clan.toLowerCase() : '', originKey = c.clan_origin ? c.clan_origin.toLowerCase() : '';
@@ -259,7 +273,7 @@
       wrap.appendChild(div);
     });
     
-    renderMinimap(W, H); 
+    renderMinimap(); 
   }
 
   function renderFilters() {
@@ -334,26 +348,22 @@
     panel.classList.add('visible');
   }
 
-  /* ── LA NOUVELLE CAMÉRA : CADENASSÉE & INFAILLIBLE ── */
+  /* ── NOUVELLE CAMERA : BULLETPROOF ── */
   function centerOnCat(cat) {
-     if(!window.pzInstance) return;
+     if(!window.pzInstance || mapW === 0) return;
      const scale = window.pzInstance.getScale();
      
-     // Coordonnées absolues du chat
      const targetX = cardCx(cat);
      const targetY = cardCy(cat);
      
      const outer = document.getElementById('tree-outer');
-     // Si la fiche est ouverte, on retire 380px de largeur d'écran pour bien centrer le chat sur la gauche
      const panelWidth = document.getElementById('detail-panel').classList.contains('visible') ? 380 : 0;
-     
-     // Calcul du centre parfait de l'écran (partie visible)
      const screenCenterX = (outer.clientWidth - panelWidth) / 2;
      const screenCenterY = outer.clientHeight / 2;
      
-     // Le calcul absolu de la caméra : Centre de l'écran MOINS (Position du chat * niveau de zoom)
-     const panX = screenCenterX - (targetX * scale);
-     const panY = screenCenterY - (targetY * scale);
+     // Formule utilisant les variables globales fixes
+     const panX = screenCenterX - (mapW / 2) - (targetX - (mapW / 2)) * scale;
+     const panY = screenCenterY - (mapH / 2) - (targetY - (mapH / 2)) * scale;
      
      window.pzInstance.pan(panX, panY, { animate: true });
   }
@@ -372,22 +382,21 @@
 
   function renderAll() { renderCards(allChars); renderLines(allChars); renderDetail(); }
 
-  /* ── MINI-MAP (RADAR) ── */
-  function renderMinimap(W, H) {
-    const mSvg = document.getElementById('minimap-svg'); if (!mSvg) return;
-    mSvg.setAttribute('viewBox', `0 0 ${W} ${H}`); let circles = '';
+  /* ── MINI-MAP (RADAR) CORRIGÉE ── */
+  function renderMinimap() {
+    const mSvg = document.getElementById('minimap-svg'); if (!mSvg || mapW === 0) return;
+    mSvg.setAttribute('viewBox', `0 0 ${mapW} ${mapH}`); let circles = '';
     allChars.forEach(c => { const clan = CLANS[c.clan ? c.clan.toLowerCase() : ''] || { color: '#888' }; circles += `<circle cx="${cardCx(c)}" cy="${cardCy(c)}" r="30" fill="${clan.color}" opacity="0.8" />`; });
     circles += `<rect id="minimap-view" x="0" y="0" width="100" height="100"></rect>`; mSvg.innerHTML = circles; updateMinimapView();
   }
 
-  // Calcul inversé de la position de la caméra pour le radar
   function updateMinimapView() {
-     const rect = document.getElementById('minimap-view'); if(!rect || !window.pzInstance) return;
+     const rect = document.getElementById('minimap-view'); if(!rect || !window.pzInstance || mapW === 0) return;
      const scale = window.pzInstance.getScale(), pan = window.pzInstance.getPan();
      const outer = document.getElementById('tree-outer');
      
-     const viewX = -pan.x / scale;
-     const viewY = -pan.y / scale;
+     const viewX = (-pan.x - (mapW / 2)) / scale + (mapW / 2);
+     const viewY = (-pan.y - (mapH / 2)) / scale + (mapH / 2);
      
      rect.setAttribute('x', viewX); 
      rect.setAttribute('y', viewY);
@@ -395,22 +404,18 @@
      rect.setAttribute('height', outer.clientHeight / scale);
   }
 
-  // Téléportation via le clic sur la mini-carte
   document.getElementById('minimap-container').addEventListener('click', (e) => {
-      if (!window.pzInstance) return;
-      const rect = e.currentTarget.getBoundingClientRect(), mSvg = document.getElementById('minimap-svg');
+      if (!window.pzInstance || mapW === 0) return;
+      const rect = e.currentTarget.getBoundingClientRect();
       
-      const W_svg = parseFloat(mSvg.getAttribute('viewBox').split(' ')[2]);
-      const H_svg = parseFloat(mSvg.getAttribute('viewBox').split(' ')[3]);
-      
-      const targetX = W_svg * ((e.clientX - rect.left) / rect.width);
-      const targetY = H_svg * ((e.clientY - rect.top) / rect.height);
+      const targetX = mapW * ((e.clientX - rect.left) / rect.width);
+      const targetY = mapH * ((e.clientY - rect.top) / rect.height);
       
       const scale = window.pzInstance.getScale();
       const outer = document.getElementById('tree-outer');
       
-      const panX = (outer.clientWidth / 2) - (targetX * scale);
-      const panY = (outer.clientHeight / 2) - (targetY * scale);
+      const panX = (outer.clientWidth / 2) - (mapW / 2) - (targetX - (mapW / 2)) * scale;
+      const panY = (outer.clientHeight / 2) - (mapH / 2) - (targetY - (mapH / 2)) * scale;
       
       window.pzInstance.pan(panX, panY, { animate: true });
   });
@@ -429,9 +434,6 @@
       document.getElementById('tree-outer').style.display  = 'block';
 
       const elem = document.getElementById('tree-wrap');
-      
-      // LE CADENAS ! Force l'ordinateur à calculer les coordonnées depuis le coin en haut à gauche
-      elem.style.transformOrigin = '0 0'; 
       
       const panzoomInstance = Panzoom(elem, { 
         maxScale: 2.5, 
@@ -462,7 +464,6 @@
         if (exactMatch) { selectChar(exactMatch.id); searchBar.blur(); }
       });
 
-      // Démarrage : Centrage fluide sur le tout premier chat
       if (allChars.length > 0) {
           setTimeout(() => {
               centerOnCat(allChars[0]); 
