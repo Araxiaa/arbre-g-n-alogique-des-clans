@@ -3,7 +3,7 @@
     "title": "La Guerre des Clans",
     "description": "Arbre généalogique du serveur RP",
     "version": "1.0",
-    "exported_at": "2026-05-15T16:34:25.916Z"
+    "exported_at": "2026-05-15T16:37:03.491Z"
   },
   "characters": [
     {
@@ -2246,7 +2246,7 @@
       "status": "vivant",
       "afterlife": "",
       "gen": 2,
-      "col": 708.5,
+      "col": 708,
       "bio_parents": [96, 97],
       "bio_mates": [],
       "ex_mates": [],
@@ -2269,7 +2269,7 @@
       "status": "mort",
       "afterlife": "etoiles",
       "gen": 2,
-      "col": 712.5,
+      "col": 712,
       "bio_parents": [96, 97],
       "bio_mates": [],
       "ex_mates": [],
