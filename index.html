@@ -423,7 +423,7 @@
   async function init() {
     try {
       // On demande au site de chercher spécifiquement dans le dossier "data"
-      const res = await fetch('./data/characters.json');
+      const res = await fetch('data/characters.json');
       
       // Si l'ordinateur ne le trouve pas, il affiche cette erreur précise
       if (!res.ok) {
