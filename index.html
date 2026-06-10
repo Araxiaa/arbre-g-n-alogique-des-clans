@@ -142,10 +142,10 @@
     domestique:  { label: 'Domestique',               color: '#e6a8d7' },
   };
 
-  const RANKS = { chef: 'Chef', lieutenant: 'Lieutenant', medecin: 'Médecin du clan', app_medecin: 'Apprenti médecin', guerrier: 'Guerrier', apprenti: 'Apprenti', ancien: 'Ancien', chaton: 'Chaton', solitaire: 'Solitaire' };
+  const RANKS = { chef: 'Chef', lieutenant: 'Lieutenant', medecin: 'Médecin du clan', app_medecin: 'Apprenti médecin', guerrier: 'Guerrier', reine: 'Reine', apprenti: 'Apprenti', ancien: 'Ancien', chaton: 'Chaton', solitaire: 'Solitaire' };
   const STATUTS = { vivant: { label: 'Vivant', cls: 'st-vivant' }, mort: { label: 'Mort', cls: 'st-mort' }, disparu: { label: 'Disparu', cls: 'st-disparu' } };
 
-  const CW = 118, CH = 128, CS = 138, RS = 196;   
+  const CW = 132, CH = 156, CS = 152, RS = 216; // Aligné sur style.css   
 
   let allChars = [], charMap = {}, activeClan = 'all', selectedId = null, searchQuery = '';
   let renderedChars = [], renderedMap = {};
@@ -485,8 +485,56 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
-      allChars = data.characters || [];
-      allChars.forEach(c => { charMap[c.id] = c; });
+      // 1. Chargement brut des données
+      const rawCharacters = data.characters || data; 
+      
+      // Réinitialisation de la table de correspondance globale
+      charMap = {};
+
+      // 2. Formatage et standardisation des données
+      allChars = rawCharacters.map(c => {
+        // Force l'ID en chaîne de caractères bien propre
+        let idStr = String(c.Id || c.id).trim(); 
+        
+        // CORRECTION : Si l'ID n'a pas sa décimale (ex: "19"), on ajoute ",0" pour correspondre au JSON
+        if (!idStr.includes(',')) {
+          idStr += ",0";
+        }
+
+        // CORRECTION : Normalisation des listes de relations pour toujours avoir le suffixe ",0"
+        const cleanRelationArray = (field) => {
+          if (!field || field === "0" || field === 0) return [];
+          
+          // Sépare par les virgules (suivies ou non d'un espace)
+          return String(field).split(/,|\s+/).filter(Boolean).map(id => {
+            let cleanId = id.trim();
+            // Si le sous-identifiant n'a pas sa décimale, on lui ajoute ",0"
+            if (!cleanId.includes(',')) {
+              cleanId += ",0";
+            }
+            return cleanId;
+          });
+        };
+
+        const formattedChar = {
+          ...c,
+          id: idStr,
+          gen: parseFloat(String(c.gen).replace(',', '.')),
+          col: parseFloat(String(c.col).replace(',', '.')),
+          bio_parents: cleanRelationArray(c.bio_parents),
+          bio_children: cleanRelationArray(c.bio_children),
+          bio_mates: cleanRelationArray(c.bio_mates),
+          ex_mates: cleanRelationArray(c.ex_mates),
+          adopt_parents: cleanRelationArray(c.adopt_parents),
+          adopt_children: cleanRelationArray(c.adopt_children),
+          apprentices: cleanRelationArray(c.apprentices)
+        };
+
+        // CORRECTION VITALE : On alimente la table de correspondance globale
+        charMap[idStr] = formattedChar;
+
+        return formattedChar;
+      });
 
       document.getElementById('status-msg').style.display = 'none';
       document.getElementById('tree-outer').style.display  = 'block';
@@ -494,7 +542,6 @@
       const elem = document.getElementById('tree-wrap');
       elem.style.transformOrigin = '0 0'; 
       
-      // LE CORRECTIF EST L'OPTION "canvas: true". Elle autorise le glissement n'importe où !
       const panzoomInstance = Panzoom(elem, { 
         maxScale: 2.5, 
         minScale: 0.05, 
@@ -503,7 +550,6 @@
         canvas: true 
       });
       
-      // L'utilisation de la molette pour se déplacer naturellement
       elem.parentElement.addEventListener('wheel', function(e) {
         if (!e.ctrlKey && !e.metaKey) {
           e.preventDefault();
